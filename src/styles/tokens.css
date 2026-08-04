@@ -1,0 +1,42 @@
+:root {
+  /* marca */
+  --navy: #265370;
+  --navy-700: #1e4358;
+  --navy-900: #143142;
+  --navy-tint: #eaf0f3;
+  --navy-tint-2: #d6e2e9;
+
+  /* neutros */
+  --paper: #f3f4f5;
+  --paper-2: #ecedef;
+  --white: #ffffff;
+  --ink: #12242f;
+  --slate: #647581;
+  --slate-light: #95a0a8;
+  --line: #e6e8e9;
+
+  /* estado */
+  --green: #2e8b57;
+  --green-soft: #e3f1e9;
+  --danger: #c0503f;
+  --danger-soft: #f5e6e3;
+
+  /* sombras */
+  --shadow-card: 0 1px 3px rgba(18, 36, 47, 0.04), 0 10px 24px -14px rgba(18, 36, 47, 0.22);
+  --shadow-lift: 0 16px 36px -18px rgba(18, 36, 47, 0.4);
+
+  /* radios */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* tipografia */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  --font-display: 'Playfair Display', 'Georgia', serif;
+
+  /* layout */
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
