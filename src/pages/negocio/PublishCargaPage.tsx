@@ -40,7 +40,10 @@ export function PublishCargaPage() {
   const [error, setError] = useState<string | null>(null)
 
   const canSubmit =
-    origenTexto.trim().length > 0 && destinoTexto.trim().length > 0 && Number(pesoKg) > 0
+    origenTexto.trim().length > 0 &&
+    destinoTexto.trim().length > 0 &&
+    Number(pesoKg) > 0 &&
+    origenRegion.trim().length > 0
 
   async function handleSubmit() {
     if (!session?.user.id) return
@@ -121,14 +124,17 @@ export function PublishCargaPage() {
         </div>
       </div>
       <div className="field">
-        <select value={origenRegion} onChange={(e) => setOrigenRegion(e.target.value)}>
-          <option value="">Región de origen</option>
+        <select value={origenRegion} onChange={(e) => setOrigenRegion(e.target.value)} required>
+          <option value="">Región de origen (obligatoria)</option>
           {regionOrder.map((codigo) => (
             <option key={codigo} value={codigo}>
               {regionNames[codigo]}
             </option>
           ))}
         </select>
+        <div style={{ fontSize: 11, color: 'var(--slate)', marginTop: 5 }}>
+          Sin esto, ningún camionero podrá ver tu carga.
+        </div>
       </div>
 
       <div className="field">

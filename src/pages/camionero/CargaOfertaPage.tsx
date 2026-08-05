@@ -193,6 +193,12 @@ export function CargaOfertaPage() {
           <div className="field">
             <label>Tu precio</label>
             <input type="number" min={1} value={precio} onChange={(e) => setPrecio(e.target.value)} placeholder="$50.000" />
+            {Number(precio) > 0 && (
+              <div style={{ fontSize: 11.5, color: 'var(--slate)', marginTop: 5 }}>
+                NORTIA cobra 12% de comisión · recibirías aprox.{' '}
+                <b style={{ color: 'var(--navy)' }}>${Math.round(Number(precio) * 0.88).toLocaleString('es-CL')}</b>
+              </div>
+            )}
           </div>
           <div className="field">
             <label>Mensaje (opcional)</label>
