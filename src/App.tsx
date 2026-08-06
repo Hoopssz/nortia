@@ -6,6 +6,7 @@ import { HomeRedirect } from './routes/HomeRedirect'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { SplashPage } from './pages/SplashPage'
 import { LoginPage } from './pages/LoginPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { OnboardingLayout } from './features/onboarding/OnboardingProvider'
 
 const RolePage = lazy(() => import('./pages/onboarding/RolePage').then((m) => ({ default: m.RolePage })))
@@ -36,6 +37,7 @@ function App() {
       <Routes>
         <Route path="/" element={<SplashPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/restablecer-contrasena" element={<ResetPasswordPage />} />
 
         <Route
           path="/home"
