@@ -617,6 +617,8 @@ export type Database = {
     }
     Functions: {
       aceptar_oferta: { Args: { p_oferta_id: string }; Returns: string }
+      cancelar_carga: { Args: { p_carga_id: string }; Returns: undefined }
+      cancelar_viaje: { Args: { p_viaje_id: string }; Returns: undefined }
       cargas_compatibles: {
         Args: { p_camion_id: string }
         Returns: {
@@ -653,6 +655,12 @@ export type Database = {
           updated_at: string
           volumen_m3: number | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "cargas"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       completar_registro: {
         Args: {
@@ -676,6 +684,7 @@ export type Database = {
           viajes_totales: number
         }[]
       }
+      retirar_oferta: { Args: { p_oferta_id: string }; Returns: undefined }
     }
     Enums: {
       estado_carga:
@@ -705,7 +714,7 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals["public"]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
@@ -801,6 +810,23 @@ export type Enums<
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {

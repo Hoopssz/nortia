@@ -31,6 +31,8 @@ export function CargaOfertaPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [confirmingRetiro, setConfirmingRetiro] = useState(false)
+  const [retirando, setRetirando] = useState(false)
 
   useEffect(() => {
     if (!id || !session?.user.id) return
@@ -69,13 +71,23 @@ export function CargaOfertaPage() {
     setSaving(true)
     setError(null)
 
-    const { error } = await supabase.from('ofertas').insert({
-      carga_id: id,
-      camionero_id: session.user.id,
-      camion_id: camionId,
-      precio: Number(precio),
-      mensaje: mensaje || null,
-    })
+    const { error } = miOferta
+      ? await supabase
+          .from('ofertas')
+          .update({
+            camion_id: camionId,
+            precio: Number(precio),
+            mensaje: mensaje || null,
+            estado: 'pendiente',
+          })
+          .eq('id', miOferta.id)
+      : await supabase.from('ofertas').insert({
+          carga_id: id,
+          camionero_id: session.user.id,
+          camion_id: camionId,
+          precio: Number(precio),
+          mensaje: mensaje || null,
+        })
 
     if (error) {
       setSaving(false)
@@ -85,6 +97,21 @@ export function CargaOfertaPage() {
 
     setReloadKey((k) => k + 1)
     setSaving(false)
+  }
+
+  async function handleRetirar() {
+    if (!miOferta) return
+    setRetirando(true)
+    setError(null)
+    const { error } = await supabase.rpc('retirar_oferta', { p_oferta_id: miOferta.id })
+    if (error) {
+      setError(error.message)
+      setRetirando(false)
+      return
+    }
+    setReloadKey((k) => k + 1)
+    setRetirando(false)
+    setConfirmingRetiro(false)
   }
 
   if (loading) {
@@ -165,7 +192,13 @@ export function CargaOfertaPage() {
 
       <div className="eyebrow">Tu oferta</div>
 
-      {miOferta ? (
+      {miOferta && miOferta.estado === 'retirada' && (
+        <p style={{ fontSize: 12, color: 'var(--slate)', marginTop: -4, marginBottom: 10 }}>
+          Retiraste tu oferta anterior. Puedes enviar una nueva.
+        </p>
+      )}
+
+      {miOferta && miOferta.estado !== 'retirada' ? (
         <div className="card">
           <div className="between">
             <span style={{ fontSize: 13, color: 'var(--slate)' }}>Ofertaste</span>
@@ -187,6 +220,36 @@ export function CargaOfertaPage() {
                   ? 'Rechazada'
                   : 'Retirada'}
           </span>
+
+          {error && <p style={{ color: 'var(--danger)', fontSize: 12.5, marginTop: 12, marginBottom: 0 }}>{error}</p>}
+
+          {miOferta.estado === 'pendiente' && (
+            <div style={{ marginTop: 14 }}>
+              {confirmingRetiro ? (
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: 13, color: 'var(--ink)', margin: '0 0 10px' }}>¿Retirar tu oferta?</p>
+                  <div className="row" style={{ gap: 8, justifyContent: 'center' }}>
+                    <button className="btn btn-primary" disabled={retirando} onClick={handleRetirar}>
+                      {retirando ? 'Retirando…' : 'Sí, retirar'}
+                    </button>
+                    <span
+                      style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate)', cursor: 'pointer', padding: '0 10px' }}
+                      onClick={() => setConfirmingRetiro(false)}
+                    >
+                      No
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <span
+                  style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--danger)', cursor: 'pointer' }}
+                  onClick={() => setConfirmingRetiro(true)}
+                >
+                  Retirar oferta
+                </span>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <>

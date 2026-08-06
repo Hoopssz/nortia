@@ -34,6 +34,8 @@ export function ViajeDetailPage() {
   const [comentario, setComentario] = useState('')
   const [enviandoResena, setEnviandoResena] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmingCancel, setConfirmingCancel] = useState(false)
+  const [cancelando, setCancelando] = useState(false)
 
   useEffect(() => {
     if (!id || !session?.user.id) return
@@ -79,6 +81,21 @@ export function ViajeDetailPage() {
     }
     setReloadKey((k) => k + 1)
     setMarcando(false)
+  }
+
+  async function handleCancelar() {
+    if (!viaje) return
+    setCancelando(true)
+    setError(null)
+    const { error } = await supabase.rpc('cancelar_viaje', { p_viaje_id: viaje.id })
+    if (error) {
+      setError(error.message)
+      setCancelando(false)
+      return
+    }
+    setReloadKey((k) => k + 1)
+    setCancelando(false)
+    setConfirmingCancel(false)
   }
 
   async function handleEnviarResena() {
@@ -167,9 +184,45 @@ export function ViajeDetailPage() {
       {error && <p style={{ color: 'var(--danger)', fontSize: 12.5, marginBottom: 12 }}>{error}</p>}
 
       {viaje.estado !== 'entregado' && viaje.estado !== 'cancelado' && (
-        <button className="btn btn-primary" disabled={marcando} onClick={handleMarcarEntregado}>
-          {marcando ? 'Guardando…' : 'Marcar como entregado'} {!marcando && <Icon name="check" size={18} strokeWidth={2} />}
-        </button>
+        <>
+          {soyCamionero ? (
+            <div className="card flat" style={{ background: 'var(--paper)', textAlign: 'center' }}>
+              <p style={{ fontSize: 13, color: 'var(--slate)', margin: 0 }}>
+                Esperando que el cliente confirme la entrega.
+              </p>
+            </div>
+          ) : (
+            <button className="btn btn-primary" disabled={marcando} onClick={handleMarcarEntregado}>
+              {marcando ? 'Guardando…' : 'Marcar como entregado'} {!marcando && <Icon name="check" size={18} strokeWidth={2} />}
+            </button>
+          )}
+
+          <div style={{ marginTop: 14, textAlign: 'center' }}>
+            {confirmingCancel ? (
+              <div className="card flat" style={{ background: 'var(--danger-soft)', padding: 16 }}>
+                <p style={{ fontSize: 13, color: 'var(--ink)', margin: '0 0 10px' }}>¿Cancelar este viaje?</p>
+                <div className="row" style={{ gap: 8, justifyContent: 'center' }}>
+                  <button className="btn btn-primary" disabled={cancelando} onClick={handleCancelar}>
+                    {cancelando ? 'Cancelando…' : 'Sí, cancelar'}
+                  </button>
+                  <span
+                    style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate)', cursor: 'pointer', padding: '0 10px' }}
+                    onClick={() => setConfirmingCancel(false)}
+                  >
+                    No
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <span
+                style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--danger)', cursor: 'pointer' }}
+                onClick={() => setConfirmingCancel(true)}
+              >
+                Cancelar viaje
+              </span>
+            )}
+          </div>
+        </>
       )}
 
       {viaje.estado === 'entregado' && (

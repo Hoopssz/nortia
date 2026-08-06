@@ -33,6 +33,8 @@ export function CargaDetailPage() {
   const [accepting, setAccepting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
+  const [confirmingCancel, setConfirmingCancel] = useState(false)
+  const [cancelando, setCancelando] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -70,6 +72,21 @@ export function CargaDetailPage() {
     }
     setReloadKey((k) => k + 1)
     setAccepting(null)
+  }
+
+  async function handleCancelar() {
+    if (!id) return
+    setCancelando(true)
+    setError(null)
+    const { error } = await supabase.rpc('cancelar_carga', { p_carga_id: id })
+    if (error) {
+      setError(error.message)
+      setCancelando(false)
+      return
+    }
+    setReloadKey((k) => k + 1)
+    setCancelando(false)
+    setConfirmingCancel(false)
   }
 
   if (loading) {
@@ -129,6 +146,34 @@ export function CargaDetailPage() {
       )}
 
       {error && <p style={{ color: 'var(--danger)', fontSize: 12.5, marginBottom: 12 }}>{error}</p>}
+
+      {(carga.estado === 'borrador' || carga.estado === 'publicada') && (
+        <div style={{ marginBottom: 16 }}>
+          {confirmingCancel ? (
+            <div className="card flat" style={{ background: 'var(--danger-soft)', textAlign: 'center', padding: 16 }}>
+              <p style={{ fontSize: 13, color: 'var(--ink)', margin: '0 0 10px' }}>¿Cancelar esta carga?</p>
+              <div className="row" style={{ gap: 8, justifyContent: 'center' }}>
+                <button className="btn btn-primary" disabled={cancelando} onClick={handleCancelar}>
+                  {cancelando ? 'Cancelando…' : 'Sí, cancelar'}
+                </button>
+                <span
+                  style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate)', cursor: 'pointer', padding: '0 10px' }}
+                  onClick={() => setConfirmingCancel(false)}
+                >
+                  No
+                </span>
+              </div>
+            </div>
+          ) : (
+            <span
+              style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--danger)', cursor: 'pointer' }}
+              onClick={() => setConfirmingCancel(true)}
+            >
+              Cancelar carga
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="eyebrow" style={{ marginTop: 8 }}>
         Ofertas recibidas
