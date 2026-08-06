@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/useAuth'
 import { supabase } from '../../lib/supabase'
 import { uploadToBucket, sanitizeFileName } from '../../lib/uploadFile'
 import { getErrorMessage } from '../../lib/errors'
+import { validarPatente } from '../../lib/validators'
 import type { Enums } from '../../lib/database.types'
 
 const TIPOS: { value: Enums<'tipo_vehiculo'>; label: string }[] = [
@@ -93,7 +94,7 @@ export function VehiclePage() {
 
   const step1Valid = c.tipo.length > 0
   const step2Valid = Number(c.carga_max_kg) > 0
-  const step3Valid = c.patente.trim().length > 0
+  const step3Valid = validarPatente(c.patente)
 
   async function finalizar() {
     if (!session?.user.id || !state.rol) return
@@ -154,7 +155,9 @@ export function VehiclePage() {
       await refreshPerfil()
       navigate('/home')
     } catch (err) {
-      setError(getErrorMessage(err))
+      const isDuplicatePatente =
+        typeof err === 'object' && err !== null && 'code' in err && (err as { code: unknown }).code === '23505'
+      setError(isDuplicatePatente ? 'Esa patente ya está registrada por otro camión.' : getErrorMessage(err))
       setSaving(false)
     }
   }
@@ -284,7 +287,12 @@ export function VehiclePage() {
         <>
           <div className="field">
             <label>Patente</label>
-            <input placeholder="Ej. LLXX00" value={c.patente} onChange={(e) => updateCamion({ patente: e.target.value })} />
+            <input placeholder="Ej. AB1234 o BBCD12" value={c.patente} onChange={(e) => updateCamion({ patente: e.target.value })} />
+            {c.patente.trim().length > 0 && !validarPatente(c.patente) && (
+              <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>
+                Formato de patente no reconocido (ej. AB1234 o BBCD12).
+              </div>
+            )}
           </div>
           <div className="field">
             <label>Marca / modelo / año (opcional)</label>

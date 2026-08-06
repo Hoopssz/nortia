@@ -4,6 +4,7 @@ import { Icon } from '../../components/Icon'
 import { useOnboarding } from '../../features/onboarding/useOnboarding'
 import { useAuth } from '../../contexts/useAuth'
 import { supabase } from '../../lib/supabase'
+import { validarRut } from '../../lib/validators'
 
 export function PerfilPage() {
   const navigate = useNavigate()
@@ -18,7 +19,8 @@ export function PerfilPage() {
     if (!state.rol || state.regiones.length === 0) navigate('/onboarding/rol', { replace: true })
   }, [state.rol, state.regiones, navigate])
 
-  const canSubmit = state.razonSocial.trim().length > 0 && state.rut.trim().length > 0 && state.rubro.trim().length > 0
+  const rutValido = validarRut(state.rut)
+  const canSubmit = state.razonSocial.trim().length > 0 && rutValido && state.rubro.trim().length > 0
 
   async function handleSubmit() {
     if (!state.rol) return
@@ -70,6 +72,9 @@ export function PerfilPage() {
       <div className="field">
         <label>RUT</label>
         <input value={state.rut} onChange={(e) => update({ rut: e.target.value })} placeholder="76.XXX.XXX-X" />
+        {state.rut.trim().length > 0 && !rutValido && (
+          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>RUT inválido. Revisa el número y el dígito verificador.</div>
+        )}
       </div>
       <div className="field">
         <label>{esProveedor ? 'Tipo de producto' : 'Rubro'}</label>
