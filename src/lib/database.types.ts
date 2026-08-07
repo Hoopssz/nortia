@@ -337,6 +337,32 @@ export type Database = {
           },
         ]
       }
+      perfil_roles: {
+        Row: {
+          created_at: string
+          perfil_id: string
+          rol: Database["public"]["Enums"]["rol_usuario"]
+        }
+        Insert: {
+          created_at?: string
+          perfil_id: string
+          rol: Database["public"]["Enums"]["rol_usuario"]
+        }
+        Update: {
+          created_at?: string
+          perfil_id?: string
+          rol?: Database["public"]["Enums"]["rol_usuario"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perfil_roles_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "perfiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       perfiles: {
         Row: {
           activo: boolean
@@ -617,6 +643,19 @@ export type Database = {
     }
     Functions: {
       aceptar_oferta: { Args: { p_oferta_id: string }; Returns: string }
+      agregar_rol: {
+        Args: {
+          p_razon_social?: string
+          p_rol: Database["public"]["Enums"]["rol_usuario"]
+          p_rubro?: string
+          p_rut?: string
+        }
+        Returns: undefined
+      }
+      cambiar_rol_activo: {
+        Args: { p_rol: Database["public"]["Enums"]["rol_usuario"] }
+        Returns: undefined
+      }
       cancelar_carga: { Args: { p_carga_id: string }; Returns: undefined }
       cancelar_viaje: { Args: { p_viaje_id: string }; Returns: undefined }
       cargas_compatibles: {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
 import { useOnboarding } from '../../features/onboarding/useOnboarding'
 import { useAuth } from '../../contexts/useAuth'
@@ -81,6 +81,8 @@ function FileField({
 
 export function VehiclePage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const agregando = searchParams.get('agregar') === '1'
   const { state, updateCamion } = useOnboarding()
   const { session, refreshPerfil } = useAuth()
   const [step, setStep] = useState(1)
@@ -89,26 +91,33 @@ export function VehiclePage() {
   const c = state.camion
 
   useEffect(() => {
+    if (agregando) return
     if (!state.rol || state.regiones.length === 0) navigate('/onboarding/rol', { replace: true })
-  }, [state.rol, state.regiones, navigate])
+  }, [agregando, state.rol, state.regiones, navigate])
 
   const step1Valid = c.tipo.length > 0
   const step2Valid = Number(c.carga_max_kg) > 0
   const step3Valid = validarPatente(c.patente)
 
   async function finalizar() {
-    if (!session?.user.id || !state.rol) return
+    if (!session?.user.id) return
+    if (!agregando && !state.rol) return
     setSaving(true)
     setError(null)
 
     try {
-      const { error: rpcError } = await supabase.rpc('completar_registro', {
-        p_rol: state.rol,
-        p_nombre: state.nombre,
-        p_telefono: state.telefono,
-        p_regiones: state.regiones,
-      })
-      if (rpcError) throw rpcError
+      if (agregando) {
+        const { error: rpcError } = await supabase.rpc('agregar_rol', { p_rol: 'camionero' })
+        if (rpcError) throw rpcError
+      } else {
+        const { error: rpcError } = await supabase.rpc('completar_registro', {
+          p_rol: state.rol!,
+          p_nombre: state.nombre,
+          p_telefono: state.telefono,
+          p_regiones: state.regiones,
+        })
+        if (rpcError) throw rpcError
+      }
 
       const userId = session.user.id
       const stamp = Date.now()
@@ -173,7 +182,7 @@ export function VehiclePage() {
   return (
     <div className="px" style={{ paddingTop: 16, paddingBottom: 90, maxWidth: 480, margin: '0 auto', width: '100%' }}>
       <span className="pill pill-navy" style={{ marginBottom: 12 }}>
-        <Icon name="truck" size={13} strokeWidth={1.9} /> SOLO CAMIONERO
+        <Icon name="truck" size={13} strokeWidth={1.9} /> {agregando ? 'AGREGANDO MODO CAMIONERO' : 'SOLO CAMIONERO'}
       </span>
       <div className="steps">
         {[1, 2, 3].map((i) => (

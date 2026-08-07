@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
+import { useAuth } from '../../contexts/useAuth'
 import { supabase } from '../../lib/supabase'
 import type { Tables } from '../../lib/database.types'
 
@@ -8,16 +9,19 @@ type Carga = Tables<'cargas'>
 
 export function BuscarCargaPage() {
   const navigate = useNavigate()
+  const { session } = useAuth()
   const [cargas, setCargas] = useState<Carga[]>([])
   const [loading, setLoading] = useState(true)
   const [sinCamion, setSinCamion] = useState(false)
 
   useEffect(() => {
+    if (!session?.user.id) return
     let active = true
     async function load() {
       const { data: camionData } = await supabase
         .from('camiones')
         .select('id')
+        .eq('perfil_id', session!.user.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
@@ -39,7 +43,7 @@ export function BuscarCargaPage() {
     return () => {
       active = false
     }
-  }, [])
+  }, [session])
 
   return (
     <div className="px" style={{ paddingTop: 16, paddingBottom: 40, maxWidth: 480, margin: '0 auto', width: '100%' }}>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
+import { RoleSwitcher } from '../../components/RoleSwitcher'
 import { useAuth } from '../../contexts/useAuth'
 import { supabase } from '../../lib/supabase'
 import type { Tables } from '../../lib/database.types'
@@ -18,18 +19,20 @@ const ESTADO_PILL: Record<Tables<'cargas'>['estado'], { label: string; cls: stri
 
 export function NegocioHomePage() {
   const navigate = useNavigate()
-  const { perfil, signOut } = useAuth()
+  const { perfil, session, signOut } = useAuth()
   const basePath = perfil?.rol === 'proveedor' ? '/proveedor' : '/negocio'
   const [cargas, setCargas] = useState<Carga[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!session?.user.id) return
     let active = true
     async function load() {
       const { data, error } = await supabase
         .from('cargas')
         .select('*, ofertas(count)')
+        .eq('cliente_id', session!.user.id)
         .order('created_at', { ascending: false })
         .limit(10)
       if (active) {
@@ -42,7 +45,7 @@ export function NegocioHomePage() {
     return () => {
       active = false
     }
-  }, [])
+  }, [session])
 
   return (
     <div className="px" style={{ paddingTop: 16, paddingBottom: 40, maxWidth: 480, margin: '0 auto', width: '100%' }}>
@@ -53,24 +56,28 @@ export function NegocioHomePage() {
             ¿Qué mueves hoy?
           </div>
         </div>
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            background: 'var(--navy-tint)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--navy)',
-            cursor: 'pointer',
-          }}
-          onClick={async () => {
-            await signOut()
-            navigate('/')
-          }}
-        >
-          <Icon name="logout" size={19} strokeWidth={1.8} />
+        <div className="row" style={{ gap: 8 }}>
+          <RoleSwitcher />
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: 'var(--navy-tint)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--navy)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+            onClick={async () => {
+              await signOut()
+              navigate('/')
+            }}
+          >
+            <Icon name="logout" size={19} strokeWidth={1.8} />
+          </div>
         </div>
       </div>
 

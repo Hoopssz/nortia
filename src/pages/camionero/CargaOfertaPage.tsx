@@ -40,7 +40,13 @@ export function CargaOfertaPage() {
     async function load() {
       const [{ data: cargaData }, { data: camionData }] = await Promise.all([
         supabase.from('cargas').select('*').eq('id', id!).single(),
-        supabase.from('camiones').select('id').order('created_at', { ascending: false }).limit(1).maybeSingle(),
+        supabase
+          .from('camiones')
+          .select('id')
+          .eq('perfil_id', session!.user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
       ])
 
       let ofertaData: Oferta | null = null

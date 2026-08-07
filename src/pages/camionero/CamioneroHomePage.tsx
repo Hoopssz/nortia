@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../../components/Icon'
+import { RoleSwitcher } from '../../components/RoleSwitcher'
 import { useAuth } from '../../contexts/useAuth'
 import { supabase } from '../../lib/supabase'
 import { getErrorMessage } from '../../lib/errors'
@@ -17,7 +18,7 @@ type Ganancias = {
 
 export function CamioneroHomePage() {
   const navigate = useNavigate()
-  const { perfil, signOut } = useAuth()
+  const { perfil, session, signOut } = useAuth()
   const [camion, setCamion] = useState<Camion | null>(null)
   const [ganancias, setGanancias] = useState<Ganancias | null>(null)
   const [cargas, setCargas] = useState<Carga[]>([])
@@ -26,12 +27,14 @@ export function CamioneroHomePage() {
   const [togglingDisponible, setTogglingDisponible] = useState(false)
 
   useEffect(() => {
+    if (!session?.user.id) return
     let active = true
     async function load() {
       try {
         const { data: camionData } = await supabase
           .from('camiones')
           .select('*')
+          .eq('perfil_id', session!.user.id)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle()
@@ -58,7 +61,7 @@ export function CamioneroHomePage() {
     return () => {
       active = false
     }
-  }, [])
+  }, [session])
 
   async function toggleDisponible() {
     if (!camion) return
@@ -87,24 +90,28 @@ export function CamioneroHomePage() {
             Cargas cerca
           </div>
         </div>
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            background: 'var(--navy-tint)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--navy)',
-            cursor: 'pointer',
-          }}
-          onClick={async () => {
-            await signOut()
-            navigate('/')
-          }}
-        >
-          <Icon name="logout" size={19} strokeWidth={1.8} />
+        <div className="row" style={{ gap: 8 }}>
+          <RoleSwitcher />
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: 12,
+              background: 'var(--navy-tint)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--navy)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+            onClick={async () => {
+              await signOut()
+              navigate('/')
+            }}
+          >
+            <Icon name="logout" size={19} strokeWidth={1.8} />
+          </div>
         </div>
       </div>
 
