@@ -23,6 +23,7 @@ export interface CamionDraft {
   permisoFile: File | null
   revisionFile: File | null
   soapFile: File | null
+  licenciaFile: File | null
 }
 
 export interface OnboardingState {
@@ -59,6 +60,7 @@ export const initialCamionDraft: CamionDraft = {
   permisoFile: null,
   revisionFile: null,
   soapFile: null,
+  licenciaFile: null,
 }
 
 export const initialOnboardingState: OnboardingState = {

@@ -1,42 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
+
 :root {
-  /* marca */
+  /* Marca NORTIA Oficial - Modo Día */
   --navy: #265370;
-  --navy-700: #1e4358;
-  --navy-900: #143142;
-  --navy-tint: #eaf0f3;
-  --navy-tint-2: #d6e2e9;
+  --navy-700: #1C3E54;
+  --navy-900: #122837;
+  --navy-tint: rgba(38, 83, 112, 0.08);
+  --navy-tint-2: rgba(38, 83, 112, 0.16);
 
-  /* neutros */
-  --paper: #f3f4f5;
-  --paper-2: #ecedef;
-  --white: #ffffff;
-  --ink: #12242f;
-  --slate: #647581;
-  --slate-light: #95a0a8;
-  --line: #e6e8e9;
+  /* Neutros y Lienzo Luminoso */
+  --paper: #F8FAFC;
+  --paper-2: #F1F5F9;
+  --white: #FFFFFF;
+  --ink: #0F172A;
+  --slate: #64748B;
+  --slate-light: #94A3B8;
+  --line: rgba(226, 232, 240, 0.85);
 
-  /* estado */
-  --green: #2e8b57;
-  --green-soft: #e3f1e9;
-  --danger: #c0503f;
-  --danger-soft: #f5e6e3;
+  /* Malla de Fondo Atmosférica */
+  --bg-ambient: radial-gradient(ellipse 70% 40% at 50% -10%, rgba(38, 83, 112, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 30% at 95% 90%, rgba(38, 83, 112, 0.04) 0%, transparent 60%),
+    #F8FAFC;
 
-  /* sombras */
-  --shadow-card: 0 1px 3px rgba(18, 36, 47, 0.04), 0 10px 24px -14px rgba(18, 36, 47, 0.22);
-  --shadow-lift: 0 16px 36px -18px rgba(18, 36, 47, 0.4);
+  /* Material Translúcido (Glassmorphism) */
+  --card-glass-bg: rgba(255, 255, 255, 0.88);
+  --card-glass-border: rgba(38, 83, 112, 0.14);
+  --card-glass-border-hover: rgba(38, 83, 112, 0.35);
+  --card-glass-shadow: 0 8px 30px -4px rgba(38, 83, 112, 0.08), 0 2px 8px -2px rgba(15, 23, 42, 0.04);
+  --card-glass-backdrop: blur(20px);
 
-  /* radios */
+  /* Resplandores Glow */
+  --glow-primary: 0 0 24px rgba(38, 83, 112, 0.22);
+  --glow-cyan: 0 0 20px rgba(56, 189, 248, 0.25);
+  --glow-emerald: 0 0 20px rgba(16, 185, 129, 0.2);
+
+  /* Paneles Hero Glowy */
+  --hero-gradient: linear-gradient(135deg, #122837 0%, #265370 60%, #0F1C26 100%);
+  --hero-border: rgba(38, 83, 112, 0.35);
+  --hero-glow: 0 12px 36px -8px rgba(38, 83, 112, 0.28);
+
+  /* Estado */
+  --green: #059669;
+  --green-soft: #ECFDF5;
+  --danger: #E11D48;
+  --danger-soft: #FFF1F2;
+
+  /* Sombras Apple HIG */
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 10px 24px -14px rgba(38, 83, 112, 0.12);
+  --shadow-lift: 0 16px 36px -18px rgba(38, 83, 112, 0.25);
+
+  /* Radios Oficiales Estilo Apple */
   --radius-sm: 12px;
   --radius-md: 16px;
+  --radius-btn: 18px;
   --radius-lg: 18px;
+  --radius-card: 24px;
   --radius-xl: 24px;
   --radius-pill: 999px;
 
-  /* tipografia */
+  /* Tipografía */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-  --font-display: 'Playfair Display', 'Georgia', serif;
+  --font-display: 'Playfair Display', Georgia, serif;
 
-  /* layout */
+  /* Animaciones y curvas Apple HIG (GPU accelerated) */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-apple-spring: cubic-bezier(0.175, 0.885, 0.32, 1.12);
+  --ease-apple-press: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-apple-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Layout */
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);
+}
+
+/* =========================================================
+   MODO OSCURO: DEEP OBSIDIAN GLOW (Alta Gama Stitch/Apple)
+   ========================================================= */
+
+[data-theme='dark'] {
+  /* Marca NORTIA - Modo Noche */
+  --navy: #38BDF8;
+  --navy-700: #265370;
+  --navy-900: #1C3E54;
+  --navy-tint: rgba(56, 189, 248, 0.12);
+  --navy-tint-2: rgba(56, 189, 248, 0.22);
+
+  /* Neutros y Lienzo Nocturno */
+  --paper: #070E1A;
+  --paper-2: #0C1726;
+  --white: #0F172A;
+  --ink: #F8FAFC;
+  --slate: #94A3B8;
+  --slate-light: #64748B;
+  --line: rgba(56, 189, 248, 0.16);
+
+  /* Malla de Fondo Atmosférica Nocturna */
+  --bg-ambient: radial-gradient(ellipse 80% 50% at 50% -15%, rgba(14, 165, 233, 0.16) 0%, transparent 75%),
+    radial-gradient(ellipse 50% 40% at 85% 90%, rgba(99, 102, 241, 0.1) 0%, transparent 70%),
+    #070E1A;
+
+  /* Material Translúcido (Glassmorphism Oscuro) */
+  --card-glass-bg: rgba(15, 23, 42, 0.72);
+  --card-glass-border: rgba(56, 189, 248, 0.2);
+  --card-glass-border-hover: rgba(56, 189, 248, 0.48);
+  --card-glass-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.6), 0 0 24px -4px rgba(56, 189, 248, 0.14);
+  --card-glass-backdrop: blur(20px);
+
+  /* Resplandores Glow */
+  --glow-primary: 0 0 30px rgba(56, 189, 248, 0.35);
+  --glow-cyan: 0 0 24px rgba(56, 189, 248, 0.3);
+  --glow-emerald: 0 0 24px rgba(52, 211, 153, 0.25);
+
+  /* Paneles Hero Glowy Nocturnos */
+  --hero-gradient: linear-gradient(135deg, #070E1A 0%, #0F233D 55%, #050B14 100%);
+  --hero-border: rgba(56, 189, 248, 0.38);
+  --hero-glow: 0 14px 40px -8px rgba(2, 132, 199, 0.35);
+
+  /* Estado */
+  --green: #34D399;
+  --green-soft: rgba(6, 78, 59, 0.45);
+  --danger: #FB7185;
+  --danger-soft: rgba(136, 19, 55, 0.4);
+
+  /* Sombras Modo Noche */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 12px 28px -10px rgba(0, 0, 0, 0.6);
+  --shadow-lift: 0 18px 40px -16px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.1);
 }

@@ -2,6 +2,7 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
@@ -12,17 +13,78 @@ body {
 
 body {
   font-family: var(--font-sans);
-  background: var(--paper);
+  background: var(--bg-ambient);
+  background-attachment: fixed;
   color: var(--ink);
   min-height: 100svh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  transition: background 0.35s ease, color 0.35s ease;
 }
 
 #root {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
+}
+
+/* =========================================================
+   ANIMACIONES APPLE HIG (Optimización GPU 60fps)
+   ========================================================= */
+
+@keyframes applePageEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes appleCardEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes appleModalEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes appleFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes applePillPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -34,56 +96,76 @@ body {
 
 button {
   font-family: inherit;
+  touch-action: manipulation;
 }
 
 input,
 textarea,
 select {
   font-family: inherit;
+  touch-action: manipulation;
 }
 
 a {
   color: inherit;
+  touch-action: manipulation;
 }
+
+/* =========================================================
+   BOTONES E INTERACCIONES TÁCTILES ESTILO APPLE (18px)
+   ========================================================= */
 
 .btn {
   border: none;
   cursor: pointer;
   font-family: var(--font-sans);
   font-weight: 700;
-  border-radius: var(--radius-pill);
+  border-radius: 18px;
+  transform: translateZ(0);
   transition:
-    transform 0.12s ease,
-    box-shadow 0.15s ease,
-    opacity 0.15s ease,
-    background 0.15s ease;
+    transform 0.14s var(--ease-apple-press),
+    box-shadow 0.18s var(--ease-apple),
+    opacity 0.15s var(--ease-apple),
+    background 0.15s var(--ease-apple);
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.965);
 }
 
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 .btn-primary {
   width: 100%;
-  padding: 16px 0;
-  background: var(--navy);
-  color: var(--white);
+  padding: 15px 0;
+  background: linear-gradient(135deg, #265370 0%, #1C3E54 100%);
+  color: #FFFFFF;
   font-size: 14.5px;
-  border-radius: var(--radius-md);
+  font-weight: 700;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 8px 20px -10px rgba(38, 83, 112, 0.6);
+  box-shadow: 0 6px 20px -4px rgba(38, 83, 112, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme='dark'] .btn-primary {
+  background: linear-gradient(135deg, #38BDF8 0%, #265370 100%);
+  color: #070E1A;
+  box-shadow: 0 6px 24px -4px rgba(56, 189, 248, 0.45);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--navy-700);
+  opacity: 0.94;
+  box-shadow: 0 8px 24px -4px rgba(38, 83, 112, 0.6);
 }
 
 .btn-ghost {
@@ -92,26 +174,86 @@ a {
   background: var(--navy-tint);
   color: var(--navy);
   font-size: 13.5px;
-  border-radius: var(--radius-sm);
+  border-radius: 18px;
+  border: 1px solid var(--navy-tint-2);
 }
 
 .btn-outline {
   width: 100%;
   padding: 14px 0;
-  background: var(--white);
+  background: var(--card-glass-bg);
+  backdrop-filter: var(--card-glass-backdrop);
+  -webkit-backdrop-filter: var(--card-glass-backdrop);
   color: var(--navy);
   border: 1.5px solid var(--navy);
-  border-radius: var(--radius-sm);
+  border-radius: 18px;
   font-size: 13.5px;
 }
 
-.card {
-  background: var(--white);
-  border: 1.5px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  box-shadow: var(--shadow-card);
+.btn-secondary {
+  border: 1.5px solid var(--card-glass-border);
+  background: var(--card-glass-bg);
+  backdrop-filter: var(--card-glass-backdrop);
+  -webkit-backdrop-filter: var(--card-glass-backdrop);
+  color: var(--ink);
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
+
+/* =========================================================
+   TARJETAS Y CONTENEDORES TRANSLÚCIDOS (24px)
+   ========================================================= */
+
+.card {
+  background: var(--card-glass-bg);
+  backdrop-filter: var(--card-glass-backdrop);
+  -webkit-backdrop-filter: var(--card-glass-backdrop);
+  border: 1.5px solid var(--card-glass-border);
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: var(--card-glass-shadow);
+  animation: appleCardEnter 0.28s var(--ease-apple) both;
+  transform: translateZ(0);
+  transition:
+    transform 0.16s var(--ease-apple-press),
+    border-color 0.2s var(--ease-apple),
+    box-shadow 0.2s var(--ease-apple),
+    background 0.25s ease;
+}
+
+.card:hover {
+  border-color: var(--card-glass-border-hover);
+}
+
+.card.flat {
+  box-shadow: none;
+  border: 1px solid var(--card-glass-border);
+}
+
+.card.selectable {
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition:
+    transform 0.14s var(--ease-apple-press),
+    border-color 0.18s var(--ease-apple),
+    background 0.18s var(--ease-apple),
+    box-shadow 0.18s var(--ease-apple);
+}
+
+.card.selectable:active {
+  transform: scale(0.98);
+}
+
+.card.selectable.active {
+  border-color: var(--navy);
+  background: var(--navy-tint);
+}
+
+/* =========================================================
+   CAMPOS DE TEXTO E INPUTS CON MICRO-INTERACCIÓN APPLE
+   ========================================================= */
 
 .field {
   margin-bottom: 14px;
@@ -135,9 +277,12 @@ a {
   font-size: 14px;
   color: var(--ink);
   background: var(--white);
+  transform: translateZ(0);
   transition:
-    border 0.15s,
-    box-shadow 0.15s;
+    border-color 0.2s var(--ease-apple),
+    box-shadow 0.2s var(--ease-apple),
+    transform 0.15s var(--ease-apple),
+    background 0.15s ease;
 }
 
 .field input:focus,
@@ -145,8 +290,13 @@ a {
 .field select:focus {
   outline: none;
   border-color: var(--navy);
-  box-shadow: 0 0 0 3px var(--navy-tint);
+  box-shadow: 0 0 0 3.5px var(--navy-tint);
+  transform: translateY(-1px);
 }
+
+/* =========================================================
+   PILLS, CHIPS Y COMPONENTES
+   ========================================================= */
 
 .pill {
   display: inline-flex;
@@ -157,6 +307,7 @@ a {
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   letter-spacing: 0.2px;
+  animation: applePillPop 0.22s var(--ease-apple-spring) both;
 }
 
 .pill-green {
@@ -172,9 +323,13 @@ a {
 .px {
   padding-left: 24px;
   padding-right: 24px;
+  animation: applePageEnter 0.28s var(--ease-apple) both;
+  transform: translateZ(0);
 }
 
+h1,
 .h1 {
+  font-family: var(--font-display);
   font-size: 26px;
   font-weight: 800;
   line-height: 1.15;
@@ -182,14 +337,30 @@ a {
   letter-spacing: -0.3px;
 }
 
+h2,
 .h2 {
+  font-family: var(--font-display);
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 700;
   margin: 0 0 5px;
   letter-spacing: -0.2px;
 }
 
+h3,
+h4,
+h5,
+h6,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.15px;
+}
+
 .sub {
+  font-family: var(--font-sans);
   font-size: 13.5px;
   color: var(--slate);
   margin: 0 0 18px;
@@ -197,6 +368,7 @@ a {
 }
 
 .eyebrow {
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.8px;
@@ -206,6 +378,7 @@ a {
 }
 
 .meta {
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--slate-light);
   font-weight: 600;
@@ -222,6 +395,7 @@ a {
   height: 5px;
   border-radius: 6px;
   background: var(--navy-tint-2);
+  transition: background 0.25s var(--ease-apple);
 }
 
 .steps span.on {
@@ -240,25 +414,6 @@ a {
   justify-content: space-between;
 }
 
-.card.flat {
-  box-shadow: none;
-  border: none;
-}
-
-.card.selectable {
-  cursor: pointer;
-  transition:
-    border-color 0.15s,
-    background 0.15s,
-    box-shadow 0.15s;
-  margin-bottom: 10px;
-}
-
-.card.selectable.active {
-  border-color: var(--navy);
-  background: var(--navy-tint);
-}
-
 .ic-chip {
   width: 46px;
   height: 46px;
@@ -269,6 +424,7 @@ a {
   flex-shrink: 0;
   background: var(--navy-tint);
   color: var(--navy);
+  transition: transform 0.15s var(--ease-apple-press), background 0.18s var(--ease-apple);
 }
 
 .ic-navy {
@@ -286,12 +442,13 @@ a {
   align-items: center;
   justify-content: center;
   color: #fff;
-  transition: all 0.15s;
+  transition: transform 0.16s var(--ease-apple-spring), border-color 0.18s var(--ease-apple), background 0.18s var(--ease-apple);
 }
 
 .radio.on {
   border-color: var(--navy);
   background: var(--navy);
+  transform: scale(1.05);
 }
 
 .check-sq {
@@ -304,12 +461,13 @@ a {
   align-items: center;
   justify-content: center;
   color: #fff;
-  transition: all 0.15s;
+  transition: transform 0.16s var(--ease-apple-spring), border-color 0.18s var(--ease-apple), background 0.18s var(--ease-apple);
 }
 
 .check-sq.on {
   border-color: var(--navy);
   background: var(--navy);
+  transform: scale(1.05);
 }
 
 .toggle {
@@ -320,7 +478,7 @@ a {
   position: relative;
   flex-shrink: 0;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.22s var(--ease-apple);
 }
 
 .toggle.on {
@@ -335,7 +493,7 @@ a {
   position: absolute;
   top: 3px;
   left: 3px;
-  transition: left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.24s var(--ease-apple-spring), left 0.24s var(--ease-apple-spring);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
@@ -355,6 +513,16 @@ a {
   color: var(--slate);
   background: #fff;
   cursor: pointer;
+  transform: translateZ(0);
+  transition:
+    transform 0.12s var(--ease-apple-press),
+    background 0.18s var(--ease-apple),
+    border-color 0.18s var(--ease-apple),
+    color 0.18s var(--ease-apple);
+}
+
+.chip:active {
+  transform: scale(0.95);
 }
 
 .chip.on {
@@ -393,8 +561,464 @@ a {
 }
 
 .navy-panel {
-  background: var(--navy);
+  background: var(--hero-gradient);
+  border: 1px solid var(--hero-border);
   color: #fff;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--hero-glow);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.18s var(--ease-apple), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.navy-panel:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 16px 44px -8px rgba(2, 132, 199, 0.4);
+}
+
+/* =========================================================
+   MODALES Y HOJAS ESTILO APPLE (Glassmorphism 60fps)
+   ========================================================= */
+
+.apple-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 14, 26, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: appleFadeIn 0.2s var(--ease-apple) both;
+  transform: translateZ(0);
+}
+
+.apple-modal-sheet {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card-glass-bg);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  color: var(--ink);
+  border: 1px solid var(--card-glass-border);
+  border-radius: var(--radius-xl);
+  padding: 24px 20px;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.45);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: appleModalEnter 0.28s var(--ease-apple-sheet) both;
+  transform: translateZ(0);
+}
+
+/* =========================================================
+   UTILIDADES GLOWY TRANSLÚCIDAS & ACCESOS RÁPIDOS
+   ========================================================= */
+
+.glow-card {
+  background: var(--card-glass-bg);
+  backdrop-filter: var(--card-glass-backdrop);
+  -webkit-backdrop-filter: var(--card-glass-backdrop);
+  border: 1.5px solid var(--card-glass-border);
+  box-shadow: var(--card-glass-shadow);
+  border-radius: 24px;
+  transform: translateZ(0);
+  transition: all 0.2s var(--ease-apple);
+}
+
+.glow-card:hover {
+  border-color: var(--card-glass-border-hover);
+}
+
+.glow-tile-cyan {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(2, 132, 199, 0.04) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glow-tile-cyan:hover {
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 0 22px -4px rgba(56, 189, 248, 0.35);
+}
+
+.glow-tile-emerald {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.12) 0%, rgba(5, 150, 105, 0.04) 100%);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glow-tile-emerald:hover {
+  border-color: rgba(52, 211, 153, 0.55);
+  box-shadow: 0 0 22px -4px rgba(52, 211, 153, 0.35);
+}
+
+.glow-tile-amber {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(217, 119, 6, 0.04) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glow-tile-amber:hover {
+  border-color: rgba(251, 191, 36, 0.55);
+  box-shadow: 0 0 22px -4px rgba(251, 191, 36, 0.35);
+}
+
+.glow-tile-rose {
+  background: linear-gradient(135deg, rgba(251, 113, 133, 0.12) 0%, rgba(225, 29, 72, 0.04) 100%);
+  border: 1px solid rgba(251, 113, 133, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.glow-tile-rose:hover {
+  border-color: rgba(251, 113, 133, 0.55);
+  box-shadow: 0 0 22px -4px rgba(251, 113, 133, 0.35);
+}
+
+.pill-glow {
+  background: var(--navy-tint);
+  border: 1px solid var(--navy-tint-2);
+  color: var(--navy);
+  box-shadow: 0 0 14px -2px var(--navy-tint);
+}
+
+/* =========================================================
+   PLATAFORMA WEB REAL: CONTENEDORES Y GRILLAS RESPONSIVAS
+   Adaptación completa para Mac, PC, iPad y Celulares
+   ========================================================= */
+
+@media (min-width: 768px) {
+  .desktop-nav {
+    display: flex !important;
+  }
+  .mobile-only-btn {
+    display: none !important;
+  }
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
+
+.web-platform-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+@media (max-width: 640px) {
+  .web-platform-container {
+    padding: 14px 16px 40px;
+  }
+}
+
+.dashboard-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-split-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.stats-bar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+  .stats-bar-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-bar-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  .stats-bar-grid > div {
+    padding: 10px 12px !important;
+    border-radius: 18px !important;
+  }
+}
+
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .two-col-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.cards-auto-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .cards-auto-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   NORTIA Tactical Radar Map Styles
+   ============================================================ */
+@keyframes radarPing {
+  0% {
+    r: 4;
+    opacity: 0.9;
+    stroke-width: 2;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+    stroke-width: 0.5;
+  }
+}
+
+@keyframes routePulse {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes hudGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px -3px rgba(56, 189, 248, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 25px -1px rgba(56, 189, 248, 0.45);
+  }
+}
+
+.radar-canvas-bg {
+  background-image: 
+    radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px),
+    linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  background-size: 16px 16px, 64px 64px, 64px 64px;
+}
+
+/* ============================================================
+   NORTIA Thermal Heatmap Styles
+   ============================================================ */
+.glow-tile-fire {
+  background: rgba(244, 63, 94, 0.04);
+  border-color: rgba(244, 63, 94, 0.2);
+}
+
+.glow-tile-fire:hover {
+  border-color: rgba(244, 63, 94, 0.45);
+  box-shadow: 0 0 20px -4px rgba(244, 63, 94, 0.25);
+}
+
+@keyframes heatPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(244, 63, 94, 0.9));
+  }
+}
+
+@keyframes pingFire {
+  0% {
+    r: 4;
+    opacity: 0.9;
+    stroke-width: 1.8;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+    stroke-width: 0.5;
+  }
+}
+
+/* ============================================================
+   ESTILOS CENTRO DE MENSAJES & CHAT CON NOTAS DE VOZ
+   ============================================================ */
+@media (max-width: 768px) {
+  #mensajes-split-layout {
+    grid-template-columns: 1fr !important;
+    height: calc(100vh - 150px) !important;
+  }
+  .mobile-hidden {
+    display: none !important;
+  }
+  .mobile-hidden-thread {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only-btn {
+    display: none !important;
+  }
+}
+
+/* ============================================================
+   OPTIMIZACIÓN MÓVIL REFINADA (EVITA ASPECTO TOSCO / APPLE HIG)
+   Escala tipográfica compacta, espaciados limpios y tarjetas esbeltas
+   ============================================================ */
+@media (max-width: 640px) {
+  h1,
+  .h1 {
+    font-family: var(--font-display) !important;
+    font-size: 19px !important;
+    line-height: 1.22 !important;
+    letter-spacing: -0.35px !important;
+    margin: 0 0 4px !important;
+  }
+
+  h2,
+  .h2 {
+    font-family: var(--font-display) !important;
+    font-size: 15.5px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -0.25px !important;
+    margin: 0 0 3px !important;
+  }
+
+  .sub {
+    font-family: var(--font-sans) !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    margin: 0 0 10px !important;
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans) !important;
+    font-size: 9.5px !important;
+    letter-spacing: 0.6px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .meta {
+    font-family: var(--font-sans) !important;
+    font-size: 10.5px !important;
+  }
+
+  /* Tarjetas con esquinas redondeadas estilo Apple (24px) */
+  .card,
+  .glow-card {
+    padding: 14px 16px !important;
+    border-radius: 24px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .navy-panel {
+    padding: 14px 16px !important;
+    border-radius: 24px !important;
+  }
+
+  .web-platform-container {
+    padding: 8px 12px 28px !important;
+  }
+
+  /* Formularios estilizados sin inflar la altura */
+  .field {
+    margin-bottom: 10px !important;
+  }
+
+  .field label {
+    font-size: 10.5px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+    border-radius: 14px !important;
+  }
+
+  /* Botones táctiles refinados (18px) */
+  .btn-primary {
+    padding: 12px 16px !important;
+    font-size: 13.5px !important;
+    border-radius: 18px !important;
+  }
+
+  .btn-ghost,
+  .btn-outline {
+    padding: 11px 14px !important;
+    font-size: 13px !important;
+    border-radius: 18px !important;
+  }
+
+  .chip {
+    padding: 5px 9px !important;
+    font-size: 11px !important;
+    border-radius: 8px !important;
+  }
+
+  .pill {
+    font-size: 9px !important;
+    padding: 2px 7px !important;
+  }
+
+  /* Ocultar textos no esenciales en mobile para evitar saturación */
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+
+
+
+
+/* ─── Print / PDF (Factura Electrónica NORTIA) ─────────────────────────────── */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  /* Ocultar toda la app */
+  body > #root {
+    display: none !important;
+  }
+
+  /* Mostrar SOLO la capa de factura */
+  .print-only {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    z-index: 99999 !important;
+  }
+
+  /* Ocultar modales y overlays al imprimir */
+  .apple-modal-overlay {
+    display: none !important;
+  }
 }

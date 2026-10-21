@@ -13,6 +13,8 @@ export interface AuthContextValue {
   refreshPerfil: () => Promise<void>
   switchRole: (rol: Rol) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
+  loginDemo: (rol: 'negocio' | 'camionero' | 'antigravity') => void
+  loginAntigravity: (rolInicial?: Rol) => void
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined)

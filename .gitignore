@@ -25,3 +25,9 @@ dist-ssr
 .vercel
 .env*
 .claude/settings.local.json
+
+# Secret API keys (local, never commit)
+.secrets/
+
+# Temporary media / artifacts
+walkthrough-video/

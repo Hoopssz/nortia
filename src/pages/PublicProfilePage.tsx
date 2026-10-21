@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Icon, StarFill } from '../components/Icon'
+import { WebPlatformLayout } from '../layouts/WebPlatformLayout'
 import { supabase } from '../lib/supabase'
 import type { Tables } from '../lib/database.types'
 
@@ -98,11 +99,19 @@ export function PublicProfilePage() {
         ]
 
   return (
-    <div className="px" style={{ paddingTop: 16, paddingBottom: 40, maxWidth: 480, margin: '0 auto', width: '100%' }}>
-      <div className="row" style={{ marginBottom: 16, cursor: 'pointer' }} onClick={() => navigate(-1)}>
-        <Icon name="arrowL" size={18} strokeWidth={2} />
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate)' }}>Volver</span>
-      </div>
+    <WebPlatformLayout activeTab="Mi Cuenta">
+      <div className="web-platform-container" style={{ maxWidth: 780 }}>
+        <div className="between" style={{ marginBottom: 16, alignItems: 'center' }}>
+          <button
+            type="button"
+            className="chip"
+            style={{ cursor: 'pointer', background: 'var(--card-glass-bg)', borderColor: 'var(--card-glass-border)' }}
+            onClick={() => navigate(-1)}
+          >
+            <Icon name="arrowL" size={15} strokeWidth={2} />
+            <span>Volver</span>
+          </button>
+        </div>
 
       <span className="pill pill-navy" style={{ marginBottom: 14 }}>
         <Icon name={tag.icon} size={13} strokeWidth={1.9} /> {tag.label}
@@ -166,10 +175,18 @@ export function PublicProfilePage() {
               <span style={{ fontSize: 12.5, color: 'var(--slate)' }}>Pallets</span>
               <span style={{ fontSize: 12.5, fontWeight: 700 }}>{camion.pallets ?? '—'} u.</span>
             </div>
-            {camion.carroceria && (
+            {camion.patente && (
+              <div className="between" style={{ padding: '10px 0', borderBottom: '1px solid var(--line)' }}>
+                <span style={{ fontSize: 12.5, color: 'var(--slate)' }}>Patente</span>
+                <span className="pill pill-navy" style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px' }}>
+                  {camion.patente}
+                </span>
+              </div>
+            )}
+            {perfil.rut && (
               <div className="between" style={{ padding: '10px 0' }}>
-                <span style={{ fontSize: 12.5, color: 'var(--slate)' }}>Carrocería</span>
-                <span style={{ fontSize: 12.5, fontWeight: 700 }}>{camion.carroceria}</span>
+                <span style={{ fontSize: 12.5, color: 'var(--slate)' }}>RUT Conductor</span>
+                <span style={{ fontSize: 12.5, fontWeight: 700 }}>{perfil.rut}</span>
               </div>
             )}
           </div>
@@ -216,6 +233,7 @@ export function PublicProfilePage() {
           {r.comentario && <p style={{ fontSize: 12.5, color: 'var(--slate)', marginTop: 6, marginBottom: 0 }}>{r.comentario}</p>}
         </div>
       ))}
-    </div>
+      </div>
+    </WebPlatformLayout>
   )
 }

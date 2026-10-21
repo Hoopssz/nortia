@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Icon } from '../../components/Icon'
+import { Icon, Star4Point } from '../../components/Icon'
+import { ThemeTogglePill } from '../../components/ThemeTogglePill'
 import { useOnboarding } from '../../features/onboarding/useOnboarding'
 import { useAuth } from '../../contexts/useAuth'
 import { supabase } from '../../lib/supabase'
-import { validarRut } from '../../lib/validators'
+import { validarRut, formatearRut } from '../../lib/validators'
 import { getErrorMessage } from '../../lib/errors'
 
 export function PerfilPage() {
@@ -64,50 +65,149 @@ export function PerfilPage() {
   }
 
   return (
-    <div className="px" style={{ paddingTop: 16, paddingBottom: 90, maxWidth: 480, margin: '0 auto', width: '100%' }}>
-      <span className="pill pill-navy" style={{ marginBottom: 12 }}>
-        <Icon name={esProveedor ? 'package' : 'building'} size={13} strokeWidth={1.9} />
-        {agregando
-          ? ` AGREGANDO MODO ${esProveedor ? 'PROVEEDOR' : 'NEGOCIO'}`
-          : esProveedor
-            ? ' SOLO PROVEEDOR'
-            : ' SOLO NEGOCIO'}
-      </span>
-      <div className="eyebrow">Paso 3 de 3 · {esProveedor ? 'Tu operación' : 'Tu empresa'}</div>
-      <div className="h2">{esProveedor ? 'Cuéntanos qué distribuyes' : 'Cuéntanos de tu negocio'}</div>
-      <div className="sub">
-        {esProveedor
-          ? 'Definimos tus rutas y requisitos para calzar camiones.'
-          : 'Esto le da confianza al camionero para tomar tu carga.'}
+    <div
+      className="px"
+      style={{
+        paddingTop: 16,
+        paddingBottom: 24,
+        maxWidth: 540,
+        margin: '0 auto',
+        width: '100%',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      {/* Barra superior con Paso y ThemeTogglePill */}
+      <div className="between" style={{ marginBottom: 6, gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <Star4Point size={13} color="var(--navy)" />
+          <span className="eyebrow" style={{ margin: 0 }}>
+            Paso 3 de 3 · {esProveedor ? 'Tu operación' : 'Tu empresa'}
+          </span>
+        </div>
+        <ThemeTogglePill />
       </div>
 
-      <div className="field">
-        <label>Razón social</label>
-        <input value={state.razonSocial} onChange={(e) => update({ razonSocial: e.target.value })} placeholder="Constructora Ñuble" />
+      {/* Barra de progreso de 3 pasos (todos completos con resplandor) */}
+      <div className="steps" style={{ margin: '4px 0 14px' }}>
+        <span className="on" style={{ boxShadow: '0 0 10px var(--navy)' }} />
+        <span className="on" style={{ boxShadow: '0 0 10px var(--navy)' }} />
+        <span className="on" style={{ boxShadow: '0 0 10px var(--navy)' }} />
       </div>
-      <div className="field">
-        <label>RUT</label>
-        <input value={state.rut} onChange={(e) => update({ rut: e.target.value })} placeholder="76.XXX.XXX-X" />
+
+      {/* Badge de modo activo */}
+      <div style={{ marginBottom: 10 }}>
+        <span className="pill pill-glow">
+          <Icon name={esProveedor ? 'package' : 'building'} size={13} strokeWidth={2} />
+          {agregando
+            ? `Agregando modo ${esProveedor ? 'Proveedor' : 'Negocio'}`
+            : esProveedor
+              ? 'Perfil Proveedor'
+              : 'Perfil Negocio'}
+        </span>
+      </div>
+
+      {/* Título y subtítulo */}
+      <div style={{ marginBottom: 14 }}>
+        <div className="h2" style={{ margin: '0 0 4px', fontSize: 22 }}>
+          {esProveedor ? 'Cuéntanos qué distribuyes' : 'Cuéntanos de tu negocio'}
+        </div>
+        <div className="sub" style={{ margin: 0, fontSize: 13 }}>
+          {esProveedor
+            ? 'Definimos tus rutas y requisitos para calzar camiones ideales.'
+            : 'Esto le da confianza al transportista para tomar tu carga con rapidez.'}
+        </div>
+      </div>
+
+      {/* Formulario con estética translúcida */}
+      <div className="field" style={{ marginBottom: 12 }}>
+        <label>Razón social de la empresa</label>
+        <input
+          value={state.razonSocial}
+          onChange={(e) => update({ razonSocial: e.target.value })}
+          placeholder="Ej. Distribuidora Central SpA"
+          style={{
+            background: 'var(--card-glass-bg)',
+            borderColor: 'var(--card-glass-border)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        />
+      </div>
+
+      <div className="field" style={{ marginBottom: 12 }}>
+        <label>RUT de la empresa</label>
+        <input
+          value={state.rut}
+          onChange={(e) => update({ rut: formatearRut(e.target.value) })}
+          placeholder="76.123.456-K"
+          maxLength={12}
+          style={{
+            background: 'var(--card-glass-bg)',
+            borderColor: state.rut.trim().length > 0 && !rutValido ? 'var(--danger)' : 'var(--card-glass-border)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        />
         {state.rut.trim().length > 0 && !rutValido && (
-          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 5 }}>RUT inválido. Revisa el número y el dígito verificador.</div>
+          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4 }}>
+            RUT inválido. Revisa el número y el dígito verificador.
+          </div>
+        )}
+        {rutValido && (
+          <div
+            style={{
+              fontSize: 11.5,
+              color: 'var(--green)',
+              marginTop: 4,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 5,
+              fontWeight: 600,
+            }}
+          >
+            <Star4Point size={10} color="var(--green)" />
+            <Icon name="check" size={12} strokeWidth={2.8} /> RUT válido y verificado para facturación
+          </div>
         )}
       </div>
-      <div className="field">
-        <label>{esProveedor ? 'Tipo de producto' : 'Rubro'}</label>
+
+      <div className="field" style={{ marginBottom: 14 }}>
+        <label>{esProveedor ? 'Tipo de producto que distribuyes' : 'Rubro de la empresa'}</label>
         <input
           value={state.rubro}
           onChange={(e) => update({ rubro: e.target.value })}
-          placeholder={esProveedor ? 'Alimentos frescos' : 'Construcción'}
+          placeholder={esProveedor ? 'Ej. Alimentos refrigerados, frutas' : 'Ej. Construcción, ferretería, retail'}
+          style={{
+            background: 'var(--card-glass-bg)',
+            borderColor: 'var(--card-glass-border)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
         />
       </div>
 
       {!esProveedor && (
-        <div className="card between">
-          <div className="row">
+        <div
+          className="glow-card between"
+          style={{
+            padding: '12px 16px',
+            marginBottom: 16,
+            borderRadius: 14,
+            background: 'var(--card-glass-bg)',
+            border: '1px solid var(--card-glass-border)',
+          }}
+        >
+          <div className="row" style={{ gap: 10 }}>
             <span style={{ color: 'var(--navy)' }}>
-              <Icon name="doc" size={18} strokeWidth={1.7} />
+              <Icon name="doc" size={18} strokeWidth={1.8} />
             </span>
-            <span style={{ fontSize: 13, fontWeight: 600 }}>¿Emites factura?</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>¿Emites factura electrónica?</div>
+              <div style={{ fontSize: 11, color: 'var(--slate)' }}>Permite pagos con IVA y respaldo SII</div>
+            </div>
           </div>
           <div
             className={`toggle ${state.emiteFactura ? 'on' : ''}`}
@@ -118,10 +218,26 @@ export function PerfilPage() {
         </div>
       )}
 
-      {error && <p style={{ color: 'var(--danger)', fontSize: 12.5, marginTop: 14 }}>{error}</p>}
+      {error && <p style={{ color: 'var(--danger)', fontSize: 12.5, marginBottom: 12 }}>{error}</p>}
 
-      <button className="btn btn-primary" style={{ marginTop: 18 }} disabled={!canSubmit || saving} onClick={handleSubmit}>
-        {saving ? 'Guardando…' : 'Finalizar registro'} {!saving && <Icon name="arrowR" size={18} strokeWidth={2} />}
+      <button
+        className="btn btn-primary"
+        style={{
+          padding: '13px 0',
+          fontSize: 15,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          boxShadow: canSubmit && !saving ? '0 8px 24px -4px var(--navy)' : 'none',
+          transition: 'all 0.2s ease',
+        }}
+        disabled={!canSubmit || saving}
+        onClick={handleSubmit}
+      >
+        <span>{saving ? 'Guardando perfil…' : 'Finalizar registro'}</span>
+        {!saving && <Icon name="arrowR" size={16} strokeWidth={2.4} />}
       </button>
     </div>
   )

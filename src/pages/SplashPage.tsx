@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Icon } from '../components/Icon'
+import { NortiaLogo } from '../components/NortiaLogo'
 
 export function SplashPage() {
   const navigate = useNavigate()
@@ -13,29 +14,21 @@ export function SplashPage() {
         alignItems: 'center',
         justifyContent: 'center',
         background:
-          'radial-gradient(520px 320px at 50% 34%, rgba(38,83,112,0.05), transparent 70%), #fff',
+          'radial-gradient(520px 320px at 50% 34%, rgba(38,83,112,0.06), transparent 70%), #fff',
         padding: '24px',
       }}
     >
-      <div style={{ textAlign: 'center' }}>
-        <span
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
-            fontSize: 48,
-            letterSpacing: 0.5,
-            color: 'var(--navy)',
-          }}
-        >
-          NORTIA.
-        </span>
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+        <NortiaLogo variant="isotipo" size={72} />
+        <NortiaLogo variant="logotipo" size={54} />
         <div
           style={{
-            marginTop: 12,
-            fontSize: 12.5,
-            letterSpacing: 1,
-            color: 'var(--slate-light)',
+            marginTop: 4,
+            fontSize: 13,
+            letterSpacing: 0.8,
+            color: 'var(--slate)',
             fontWeight: 600,
+            fontFamily: 'var(--font-sans)',
           }}
         >
           Mueve tu carga con confianza
@@ -47,7 +40,16 @@ export function SplashPage() {
         style={{ maxWidth: 320, marginTop: 40 }}
         onClick={() => navigate('/login')}
       >
-        Comenzar <Icon name="arrowR" size={18} strokeWidth={2} />
+        Ingresar a la App <Icon name="arrowR" size={18} strokeWidth={2} />
+      </button>
+
+      <button
+        type="button"
+        className="btn btn-ghost"
+        style={{ maxWidth: 320, marginTop: 12, fontSize: 13, color: 'var(--navy)', fontWeight: 700 }}
+        onClick={() => navigate('/landing')}
+      >
+        Ver Simulador y Portal Web →
       </button>
     </div>
   )

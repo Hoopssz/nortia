@@ -42,19 +42,25 @@ export function RoleSwitcher() {
         style={{
           gap: 6,
           cursor: 'pointer',
-          background: 'var(--navy-tint)',
-          borderRadius: 10,
-          padding: '6px 10px',
+          background: 'var(--card-glass-bg)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid var(--card-glass-border)',
+          boxShadow: 'var(--card-glass-shadow)',
+          borderRadius: 999,
+          padding: '6px 12px',
+          height: 38,
+          transition: 'all 0.2s ease',
         }}
         onClick={() => setOpen((v) => !v)}
       >
-        <span style={{ color: 'var(--navy)' }}>
+        <span style={{ color: 'var(--navy)', display: 'flex', alignItems: 'center' }}>
           <Icon name={ROL_META[activo].icon} size={15} strokeWidth={1.8} />
         </span>
-        <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--navy)' }}>{ROL_META[activo].label}</span>
+        <span className="hide-on-mobile" style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--ink)' }}>{ROL_META[activo].label}</span>
         <span
           style={{
-            color: 'var(--navy)',
+            color: 'var(--slate)',
             display: 'flex',
             transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
             transition: 'transform .15s',
