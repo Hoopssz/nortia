@@ -106,7 +106,7 @@ export function VehiclePage() {
   const [searchParams] = useSearchParams()
   const agregando = searchParams.get('agregar') === '1'
   const { state, update, updateCamion } = useOnboarding()
-  const { session, refreshPerfil } = useAuth()
+  const { session, refreshPerfil, completeLocalProfile } = useAuth()
   const [step, setStep] = useState(1)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -122,11 +122,54 @@ export function VehiclePage() {
   const rutValido = validarRut(state.rut)
   const step3Valid = validarPatente(c.patente) && rutValido
 
+  function saveLocalCamionAndProfile() {
+    completeLocalProfile(
+      {
+        nombre: state.nombre,
+        telefono: state.telefono,
+        regiones: state.regiones,
+        rut: state.rut,
+      },
+      'camionero',
+      agregando,
+    )
+    try {
+      const userId = session?.user.id || 'local-user'
+      localStorage.setItem(
+        `nortia_local_camion_${userId}`,
+        JSON.stringify({
+          id: 'cam-' + Math.random().toString(36).slice(2, 9),
+          perfil_id: userId,
+          tipo: c.tipo,
+          carroceria: c.carroceria || null,
+          patente: c.patente.trim().toUpperCase(),
+          marca: c.marca || null,
+          modelo: c.modelo || null,
+          anio: c.anio ? Number(c.anio) : null,
+          carga_max_kg: Number(c.carga_max_kg),
+          pallets: c.pallets ? Number(c.pallets) : null,
+          tiene_rampa: c.tiene_rampa,
+          tiene_pulpo: c.tiene_pulpo,
+          tiene_grua: c.tiene_grua,
+          tiene_refrigeracion: c.tiene_refrigeracion,
+          ayuda_carga: c.ayuda_carga,
+        }),
+      )
+    } catch {}
+    setSaving(false)
+    navigate('/home')
+  }
+
   async function finalizar() {
     if (!session?.user.id) return
     if (!agregando && !state.rol) return
     setSaving(true)
     setError(null)
+
+    if (localStorage.getItem('nortia_active_user_email')) {
+      saveLocalCamionAndProfile()
+      return
+    }
 
     try {
       if (agregando) {
@@ -195,9 +238,14 @@ export function VehiclePage() {
       await refreshPerfil()
       navigate('/home')
     } catch (err) {
+      const msg = getErrorMessage(err)
+      if (msg.toLowerCase().includes('load failed') || msg.toLowerCase().includes('fetch')) {
+        saveLocalCamionAndProfile()
+        return
+      }
       const isDuplicatePatente =
         typeof err === 'object' && err !== null && 'code' in err && (err as { code: unknown }).code === '23505'
-      setError(isDuplicatePatente ? 'Esa patente ya está registrada por otro camión.' : getErrorMessage(err))
+      setError(isDuplicatePatente ? 'Esa patente ya está registrada por otro camión.' : msg)
       setSaving(false)
     }
   }

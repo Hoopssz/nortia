@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Icon, Star4Point } from '../../components/Icon'
 import { ThemeTogglePill } from '../../components/ThemeTogglePill'
@@ -13,6 +14,15 @@ const ROLES: { value: Enums<'rol_usuario'>; icon: 'building' | 'truck' | 'packag
 export function RolePage() {
   const navigate = useNavigate()
   const { state, update } = useOnboarding()
+
+  useEffect(() => {
+    try {
+      const prefill = localStorage.getItem('nortia_prefill_nombre')
+      if (prefill && !state.nombre.trim()) {
+        update({ nombre: prefill })
+      }
+    } catch {}
+  }, [])
 
   const canContinue = state.nombre.trim().length > 0 && state.telefono.trim().length > 0 && state.rol !== null
 

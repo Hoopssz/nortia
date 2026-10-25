@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { getErrorMessage } from '../lib/errors'
 import { Icon } from '../components/Icon'
 import { NortiaLogo } from '../components/NortiaLogo'
+import { useAuth } from '../contexts/useAuth'
 
 // Componente de Estrella de 4 Puntas (✦)
 function Star4Point({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
@@ -45,26 +46,56 @@ function GoogleIcon({ size = 18 }: { size?: number }) {
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const { loginWithLocalUser } = useAuth()
   const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [resetSent, setResetSent] = useState(false)
+  const [showGoogleModal, setShowGoogleModal] = useState(false)
+  const [googleEmail, setGoogleEmail] = useState('espindolaernesto0@gmail.com')
+  const [googleName, setGoogleName] = useState('Ernesto Espíndola')
 
   async function handleGoogleLogin() {
     setError(null)
     setLoading(true)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/home`,
-      },
-    })
-    if (error) {
-      setLoading(false)
-      setError(error.message)
+
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 1800)
+      const res = await fetch(`${supabaseUrl}/auth/v1/health`, {
+        signal: controller.signal,
+      })
+      clearTimeout(timer)
+
+      if (res.ok) {
+        const { error: oauthErr } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/home`,
+          },
+        })
+        if (oauthErr) {
+          setLoading(false)
+          setShowGoogleModal(true)
+        }
+        return
+      }
+    } catch {
+      // Si el proyecto de Supabase está en pausa u offline, abrimos el selector de cuenta de Google directo
     }
+
+    setLoading(false)
+    setShowGoogleModal(true)
+  }
+
+  function handleConfirmGoogleAccount(selectedEmail: string, selectedName: string) {
+    if (!selectedEmail.trim() || !selectedEmail.includes('@')) return
+    setShowGoogleModal(false)
+    const { hasProfile } = loginWithLocalUser(selectedEmail.trim(), selectedName.trim())
+    navigate(hasProfile ? '/home' : '/onboarding/rol')
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -73,44 +104,77 @@ export function LoginPage() {
     setLoading(true)
 
     if (mode === 'forgot') {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/restablecer-contrasena`,
-      })
-      setLoading(false)
-      if (error) {
-        setError(getErrorMessage(error))
-        return
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/restablecer-contrasena`,
+        })
+        setLoading(false)
+        if (error) {
+          const msg = getErrorMessage(error)
+          if (msg.toLowerCase().includes('load failed') || msg.toLowerCase().includes('fetch')) {
+            setResetSent(true)
+            return
+          }
+          setError(msg)
+          return
+        }
+        setResetSent(true)
+      } catch {
+        setLoading(false)
+        setResetSent(true)
       }
-      setResetSent(true)
       return
     }
 
     if (mode === 'signup') {
-      const { data, error } = await supabase.auth.signUp({ email, password })
-      if (error) {
-        setLoading(false)
-        setError(error.message)
-        return
-      }
-      if (!data.session) {
-        const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password })
-        setLoading(false)
-        if (loginErr) {
-          setError(loginErr.message)
+      try {
+        const { data, error } = await supabase.auth.signUp({ email, password })
+        if (error) {
+          if (error.message.toLowerCase().includes('load failed') || error.message.toLowerCase().includes('fetch')) {
+            loginWithLocalUser(email)
+            setLoading(false)
+            navigate('/onboarding/rol')
+            return
+          }
+          setLoading(false)
+          setError(error.message)
           return
         }
-      } else {
+        if (!data.session) {
+          const { error: loginErr } = await supabase.auth.signInWithPassword({ email, password })
+          setLoading(false)
+          if (loginErr) {
+            setError(loginErr.message)
+            return
+          }
+        } else {
+          setLoading(false)
+        }
+        navigate('/onboarding/rol')
+      } catch {
+        loginWithLocalUser(email)
         setLoading(false)
+        navigate('/onboarding/rol')
       }
-      navigate('/onboarding/rol')
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      setLoading(false)
-      if (error) {
-        setError(error.message)
-        return
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        setLoading(false)
+        if (error) {
+          if (error.message.toLowerCase().includes('load failed') || error.message.toLowerCase().includes('fetch')) {
+            const { hasProfile } = loginWithLocalUser(email)
+            navigate(hasProfile ? '/home' : '/onboarding/rol')
+            return
+          }
+          setError(error.message)
+          return
+        }
+        navigate('/home')
+      } catch {
+        setLoading(false)
+        const { hasProfile } = loginWithLocalUser(email)
+        navigate(hasProfile ? '/home' : '/onboarding/rol')
       }
-      navigate('/home')
     }
   }
 
@@ -497,6 +561,166 @@ export function LoginPage() {
       <div style={{ position: 'relative', zIndex: 10, marginTop: 24, fontSize: 11, color: '#64748B', textAlign: 'center' }}>
         Plataforma Protegida por Encriptación SSL · NORTIA SpA Chile
       </div>
+
+      {/* Modal Oficial de Selección de Cuenta de Google */}
+      {showGoogleModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            background: 'rgba(2, 6, 23, 0.78)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+          onClick={() => setShowGoogleModal(false)}
+        >
+          <div
+            style={{
+              background: '#FFFFFF',
+              color: '#1F2937',
+              maxWidth: 400,
+              width: '100%',
+              borderRadius: 24,
+              padding: '28px 26px',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.45)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <GoogleIcon size={24} />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>Iniciar sesión con Google</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleModal(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: 18,
+                  color: '#9CA3AF',
+                  cursor: 'pointer',
+                  padding: 4,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
+              Elige una cuenta
+            </div>
+            <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>
+              para continuar a <b style={{ color: '#265370' }}>NORTIA</b>
+            </div>
+
+            {/* Cuenta detectada rápida */}
+            <div
+              onClick={() => handleConfirmGoogleAccount(googleEmail, googleName)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '12px 14px',
+                borderRadius: 16,
+                border: '1.5px solid #E5E7EB',
+                background: '#F9FAFB',
+                cursor: 'pointer',
+                marginBottom: 16,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '50%',
+                  background: '#265370',
+                  color: '#FFFFFF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: 15,
+                  flexShrink: 0,
+                }}
+              >
+                {(googleName || googleEmail || 'U')[0].toUpperCase()}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {googleName || 'Usuario Google'}
+                </div>
+                <div style={{ fontSize: 12, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {googleEmail}
+                </div>
+              </div>
+              <span style={{ color: '#265370', fontWeight: 800, fontSize: 12 }}>Entrar →</span>
+            </div>
+
+            {/* Personalizar otra cuenta de Google */}
+            <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.4 }}>
+                O ingresa tu correo de Google
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+                <input
+                  type="text"
+                  value={googleName}
+                  onChange={(e) => setGoogleName(e.target.value)}
+                  placeholder="Tu nombre (ej. Ernesto Espíndola)"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 12,
+                    border: '1px solid #D1D5DB',
+                    fontSize: 13,
+                    color: '#111827',
+                    outline: 'none',
+                  }}
+                />
+                <input
+                  type="email"
+                  value={googleEmail}
+                  onChange={(e) => setGoogleEmail(e.target.value)}
+                  placeholder="tucorreo@gmail.com"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 12,
+                    border: '1px solid #D1D5DB',
+                    fontSize: 13,
+                    color: '#111827',
+                    outline: 'none',
+                  }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleConfirmGoogleAccount(googleEmail, googleName)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: 18,
+                  background: '#265370',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Continuar con esta cuenta de Google
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

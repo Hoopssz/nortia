@@ -15,6 +15,8 @@ export interface AuthContextValue {
   signOut: () => Promise<void>
   loginDemo: (rol: 'negocio' | 'camionero' | 'antigravity') => void
   loginAntigravity: (rolInicial?: Rol) => void
+  loginWithLocalUser: (email: string, nombre?: string) => { hasProfile: boolean }
+  completeLocalProfile: (data: Partial<Perfil> & { regiones?: number[] }, rol: Rol, isAddingRole?: boolean) => void
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined)

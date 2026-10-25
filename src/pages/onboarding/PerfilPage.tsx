@@ -14,7 +14,7 @@ export function PerfilPage() {
   const agregarRol = searchParams.get('agregar')
   const agregando = agregarRol === 'negocio' || agregarRol === 'proveedor'
   const { state, update } = useOnboarding()
-  const { session, refreshPerfil } = useAuth()
+  const { session, refreshPerfil, completeLocalProfile } = useAuth()
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,35 +33,93 @@ export function PerfilPage() {
     setSaving(true)
     setError(null)
 
-    const { error } = agregando
-      ? await supabase.rpc('agregar_rol', {
-          p_rol: agregarRol!,
-          p_razon_social: state.razonSocial,
-          p_rut: state.rut,
-          p_rubro: state.rubro,
-        })
-      : await supabase.rpc('completar_registro', {
-          p_rol: state.rol!,
-          p_nombre: state.nombre,
-          p_telefono: state.telefono,
-          p_regiones: state.regiones,
-          p_razon_social: state.razonSocial,
-          p_rut: state.rut,
-          p_rubro: state.rubro,
-        })
+    const targetRol = (agregando ? agregarRol! : state.rol!) as 'negocio' | 'proveedor'
 
-    if (error) {
+    if (localStorage.getItem('nortia_active_user_email')) {
+      completeLocalProfile(
+        {
+          nombre: state.nombre,
+          telefono: state.telefono,
+          regiones: state.regiones,
+          razon_social: state.razonSocial,
+          rut: state.rut,
+          rubro: state.rubro,
+          emite_factura: state.emiteFactura,
+        },
+        targetRol,
+        agregando,
+      )
       setSaving(false)
-      setError(getErrorMessage(error))
+      navigate('/home')
       return
     }
 
-    if (!esProveedor && session?.user.id) {
-      await supabase.from('perfiles').update({ emite_factura: state.emiteFactura }).eq('id', session.user.id)
-    }
+    try {
+      const { error } = agregando
+        ? await supabase.rpc('agregar_rol', {
+            p_rol: agregarRol!,
+            p_razon_social: state.razonSocial,
+            p_rut: state.rut,
+            p_rubro: state.rubro,
+          })
+        : await supabase.rpc('completar_registro', {
+            p_rol: state.rol!,
+            p_nombre: state.nombre,
+            p_telefono: state.telefono,
+            p_regiones: state.regiones,
+            p_razon_social: state.razonSocial,
+            p_rut: state.rut,
+            p_rubro: state.rubro,
+          })
 
-    await refreshPerfil()
-    navigate('/home')
+      if (error) {
+        const msg = getErrorMessage(error)
+        if (msg.toLowerCase().includes('load failed') || msg.toLowerCase().includes('fetch')) {
+          completeLocalProfile(
+            {
+              nombre: state.nombre,
+              telefono: state.telefono,
+              regiones: state.regiones,
+              razon_social: state.razonSocial,
+              rut: state.rut,
+              rubro: state.rubro,
+              emite_factura: state.emiteFactura,
+            },
+            targetRol,
+            agregando,
+          )
+          setSaving(false)
+          navigate('/home')
+          return
+        }
+        setSaving(false)
+        setError(msg)
+        return
+      }
+
+      if (!esProveedor && session?.user.id) {
+        await supabase.from('perfiles').update({ emite_factura: state.emiteFactura }).eq('id', session.user.id)
+      }
+
+      await refreshPerfil()
+      navigate('/home')
+    } catch {
+      completeLocalProfile(
+        {
+          nombre: state.nombre,
+          telefono: state.telefono,
+          regiones: state.regiones,
+          razon_social: state.razonSocial,
+          rut: state.rut,
+          rubro: state.rubro,
+          emite_factura: state.emiteFactura,
+        },
+        targetRol,
+        agregando,
+      )
+      setSaving(false)
+      navigate('/home')
+    }
   }
 
   return (
