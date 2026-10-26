@@ -1,18 +1,18 @@
 // NORTIA Service Worker - Offline Caching & PWA
-const CACHE_NAME = 'nortia-cache-v1'
+const CACHE_NAME = 'nortia-cache-v2'
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/favicon-square.svg',
-  '/icon-192.png',
-  '/icon-512.png',
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './favicon-square.svg',
+  './icon-192.png',
+  './icon-512.png',
 ]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE)
+      return cache.addAll(ASSETS_TO_CACHE).catch(() => {})
     })
   )
   self.skipWaiting()
@@ -34,36 +34,36 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
-  // Manejar solo requests GET
   if (event.request.method !== 'GET') return
+  if (event.request.url.includes('supabase.co')) return
 
-  // Ignorar llamadas a Supabase API para manejar su caché en el cliente
-  if (event.request.url.includes('supabase.co')) {
+  // Network-first para HTML para tener siempre la última versión de producción
+  if (event.request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          const clone = networkResponse.clone()
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone))
+          return networkResponse
+        })
+        .catch(() => caches.match(event.request).then((r) => r || caches.match('./index.html')))
+    )
     return
   }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse
-      }
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse
-          }
-          const responseToCache = networkResponse.clone()
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache)
-          })
+      if (cachedResponse) return cachedResponse
+      return fetch(event.request).then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
           return networkResponse
+        }
+        const responseToCache = networkResponse.clone()
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseToCache)
         })
-        .catch(() => {
-          // Si falla y es navegación HTML, retornar index cached
-          if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('/index.html')
-          }
-        })
+        return networkResponse
+      })
     })
   )
 })
