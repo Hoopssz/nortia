@@ -54,8 +54,29 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [resetSent, setResetSent] = useState(false)
   const [showGoogleModal, setShowGoogleModal] = useState(false)
-  const [googleEmail, setGoogleEmail] = useState('espindolaernesto0@gmail.com')
-  const [googleName, setGoogleName] = useState('Ernesto Espíndola')
+  const [googleEmail, setGoogleEmail] = useState('')
+  const [googleName, setGoogleName] = useState('')
+  const [savedAccounts, setSavedAccounts] = useState<Array<{ email: string; name: string }>>([])
+
+  function loadDeviceGoogleAccounts() {
+    try {
+      const raw = localStorage.getItem('nortia_users_db')
+      if (!raw) {
+        setSavedAccounts([])
+        return
+      }
+      const parsed = JSON.parse(raw) as Record<string, { email: string; perfil?: { nombre?: string } | null }>
+      const list = Object.values(parsed)
+        .filter((u) => u && u.email && u.email.includes('@'))
+        .map((u) => ({
+          email: u.email,
+          name: u.perfil?.nombre || u.email.split('@')[0],
+        }))
+      setSavedAccounts(list)
+    } catch {
+      setSavedAccounts([])
+    }
+  }
 
   async function handleGoogleLogin() {
     setError(null)
@@ -79,6 +100,7 @@ export function LoginPage() {
         })
         if (oauthErr) {
           setLoading(false)
+          loadDeviceGoogleAccounts()
           setShowGoogleModal(true)
         }
         return
@@ -88,13 +110,20 @@ export function LoginPage() {
     }
 
     setLoading(false)
+    loadDeviceGoogleAccounts()
     setShowGoogleModal(true)
   }
 
   function handleConfirmGoogleAccount(selectedEmail: string, selectedName: string) {
-    if (!selectedEmail.trim() || !selectedEmail.includes('@')) return
+    const cleanEmail = selectedEmail.trim().toLowerCase()
+    if (!cleanEmail || !cleanEmail.includes('@')) return
+    const fallbackName = cleanEmail
+      .split('@')[0]
+      .replace(/[._-]+/g, ' ')
+      .replace(/\b\w/g, (l) => l.toUpperCase())
+    const finalName = selectedName.trim() || fallbackName
     setShowGoogleModal(false)
-    const { hasProfile } = loginWithLocalUser(selectedEmail.trim(), selectedName.trim())
+    const { hasProfile } = loginWithLocalUser(cleanEmail, finalName)
     navigate(hasProfile ? '/home' : '/onboarding/rol')
   }
 
@@ -612,112 +641,146 @@ export function LoginPage() {
               </button>
             </div>
 
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
-              Elige una cuenta
+            <div style={{ fontSize: 21, fontWeight: 800, color: '#111827', marginBottom: 4 }}>
+              Ingresa con tu cuenta Google
             </div>
-            <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 20 }}>
-              para continuar a <b style={{ color: '#265370' }}>NORTIA</b>
+            <div style={{ fontSize: 14, color: '#4B5563', marginBottom: 18 }}>
+              Escribe tu correo para entrar a <b style={{ color: '#265370' }}>NORTIA</b>
             </div>
 
-            {/* Cuenta detectada rápida */}
-            <div
-              onClick={() => handleConfirmGoogleAccount(googleEmail, googleName)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '12px 14px',
-                borderRadius: 16,
-                border: '1.5px solid #E5E7EB',
-                background: '#F9FAFB',
-                cursor: 'pointer',
-                marginBottom: 16,
-                transition: 'all 0.15s ease',
+            {/* Cuentas guardadas únicamente en ESTE dispositivo */}
+            {savedAccounts.length > 0 && (
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>
+                  Cuentas usadas en este dispositivo:
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {savedAccounts.map((acc) => (
+                    <div
+                      key={acc.email}
+                      onClick={() => handleConfirmGoogleAccount(acc.email, acc.name)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '12px 14px',
+                        borderRadius: 16,
+                        border: '1.5px solid #D1D5DB',
+                        background: '#F9FAFB',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: '50%',
+                          background: '#265370',
+                          color: '#FFFFFF',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 800,
+                          fontSize: 16,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {(acc.name || acc.email || 'U')[0].toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14.5, fontWeight: 700, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {acc.name}
+                        </div>
+                        <div style={{ fontSize: 13, color: '#4B5563', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {acc.email}
+                        </div>
+                      </div>
+                      <span style={{ color: '#265370', fontWeight: 800, fontSize: 13 }}>Entrar →</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Formulario limpio para cualquier usuario nuevo */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleConfirmGoogleAccount(googleEmail, googleName)
               }}
+              style={{ borderTop: savedAccounts.length > 0 ? '1px solid #E5E7EB' : 'none', paddingTop: savedAccounts.length > 0 ? 14 : 0 }}
             >
-              <div
-                style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: '50%',
-                  background: '#265370',
-                  color: '#FFFFFF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: 15,
-                  flexShrink: 0,
-                }}
-              >
-                {(googleName || googleEmail || 'U')[0].toUpperCase()}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {googleName || 'Usuario Google'}
+              {savedAccounts.length > 0 && (
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#4B5563', marginBottom: 10 }}>
+                  O entra con otra cuenta de Google:
                 </div>
-                <div style={{ fontSize: 12, color: '#6B7280', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {googleEmail}
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#111827', marginBottom: 4 }}>
+                    Tu correo de Google (Gmail)
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    autoFocus
+                    required
+                    value={googleEmail}
+                    onChange={(e) => setGoogleEmail(e.target.value)}
+                    placeholder="ejemplo@gmail.com"
+                    style={{
+                      width: '100%',
+                      padding: '13px 14px',
+                      borderRadius: 14,
+                      border: '1.5px solid #9CA3AF',
+                      fontSize: 15,
+                      color: '#111827',
+                      outline: 'none',
+                    }}
+                  />
                 </div>
-              </div>
-              <span style={{ color: '#265370', fontWeight: 800, fontSize: 12 }}>Entrar →</span>
-            </div>
-
-            {/* Personalizar otra cuenta de Google */}
-            <div style={{ borderTop: '1px solid #E5E7EB', paddingTop: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.4 }}>
-                O ingresa tu correo de Google
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-                <input
-                  type="text"
-                  value={googleName}
-                  onChange={(e) => setGoogleName(e.target.value)}
-                  placeholder="Tu nombre (ej. Ernesto Espíndola)"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: 12,
-                    border: '1px solid #D1D5DB',
-                    fontSize: 13,
-                    color: '#111827',
-                    outline: 'none',
-                  }}
-                />
-                <input
-                  type="email"
-                  value={googleEmail}
-                  onChange={(e) => setGoogleEmail(e.target.value)}
-                  placeholder="tucorreo@gmail.com"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: 12,
-                    border: '1px solid #D1D5DB',
-                    fontSize: 13,
-                    color: '#111827',
-                    outline: 'none',
-                  }}
-                />
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#111827', marginBottom: 4 }}>
+                    Tu nombre y apellido
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    autoComplete="name"
+                    value={googleName}
+                    onChange={(e) => setGoogleName(e.target.value)}
+                    placeholder="Ej. Juan Pérez"
+                    style={{
+                      width: '100%',
+                      padding: '13px 14px',
+                      borderRadius: 14,
+                      border: '1.5px solid #9CA3AF',
+                      fontSize: 15,
+                      color: '#111827',
+                      outline: 'none',
+                    }}
+                  />
+                </div>
               </div>
               <button
-                type="button"
-                onClick={() => handleConfirmGoogleAccount(googleEmail, googleName)}
+                type="submit"
+                disabled={!googleEmail.includes('@')}
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
+                  padding: '14px 16px',
                   borderRadius: 18,
-                  background: '#265370',
+                  background: googleEmail.includes('@') ? '#265370' : '#9CA3AF',
                   color: '#FFFFFF',
-                  fontWeight: 700,
-                  fontSize: 13.5,
+                  fontWeight: 800,
+                  fontSize: 15,
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: googleEmail.includes('@') ? 'pointer' : 'not-allowed',
                 }}
               >
-                Continuar con esta cuenta de Google
+                Continuar con Google →
               </button>
-            </div>
+            </form>
           </div>
         </div>
       )}

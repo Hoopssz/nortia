@@ -5,8 +5,16 @@ import { ThemeTogglePill } from '../../components/ThemeTogglePill'
 import { useOnboarding } from '../../features/onboarding/useOnboarding'
 import { useAuth } from '../../contexts/useAuth'
 import { supabase } from '../../lib/supabase'
-import { validarRut, formatearRut } from '../../lib/validators'
+import { formatearRut } from '../../lib/validators'
 import { getErrorMessage } from '../../lib/errors'
+
+const RUBROS_RAPIDOS = [
+  'Frutas, Verduras o Agrícola',
+  'Madera y Forestal',
+  'Materiales de Construcción',
+  'Alimentos y Abarrotes',
+  'Carga General / Pallets',
+]
 
 export function PerfilPage() {
   const navigate = useNavigate()
@@ -25,8 +33,7 @@ export function PerfilPage() {
     if (!state.rol || state.regiones.length === 0) navigate('/onboarding/rol', { replace: true })
   }, [agregando, state.rol, state.regiones, navigate])
 
-  const rutValido = validarRut(state.rut)
-  const canSubmit = state.razonSocial.trim().length > 0 && rutValido && state.rubro.trim().length > 0
+  const canSubmit = state.razonSocial.trim().length > 0
 
   async function handleSubmit() {
     if (!agregando && !state.rol) return
@@ -34,6 +41,8 @@ export function PerfilPage() {
     setError(null)
 
     const targetRol = (agregando ? agregarRol! : state.rol!) as 'negocio' | 'proveedor'
+    const finalRubro = state.rubro.trim() || 'Carga General'
+    const finalRut = state.rut.trim() || '76.000.000-0'
 
     if (localStorage.getItem('nortia_active_user_email')) {
       completeLocalProfile(
@@ -41,9 +50,9 @@ export function PerfilPage() {
           nombre: state.nombre,
           telefono: state.telefono,
           regiones: state.regiones,
-          razon_social: state.razonSocial,
-          rut: state.rut,
-          rubro: state.rubro,
+          razon_social: state.razonSocial.trim(),
+          rut: finalRut,
+          rubro: finalRubro,
           emite_factura: state.emiteFactura,
         },
         targetRol,
@@ -58,18 +67,18 @@ export function PerfilPage() {
       const { error } = agregando
         ? await supabase.rpc('agregar_rol', {
             p_rol: agregarRol!,
-            p_razon_social: state.razonSocial,
-            p_rut: state.rut,
-            p_rubro: state.rubro,
+            p_razon_social: state.razonSocial.trim(),
+            p_rut: finalRut,
+            p_rubro: finalRubro,
           })
         : await supabase.rpc('completar_registro', {
             p_rol: state.rol!,
             p_nombre: state.nombre,
             p_telefono: state.telefono,
             p_regiones: state.regiones,
-            p_razon_social: state.razonSocial,
-            p_rut: state.rut,
-            p_rubro: state.rubro,
+            p_razon_social: state.razonSocial.trim(),
+            p_rut: finalRut,
+            p_rubro: finalRubro,
           })
 
       if (error) {
@@ -80,9 +89,9 @@ export function PerfilPage() {
               nombre: state.nombre,
               telefono: state.telefono,
               regiones: state.regiones,
-              razon_social: state.razonSocial,
-              rut: state.rut,
-              rubro: state.rubro,
+              razon_social: state.razonSocial.trim(),
+              rut: finalRut,
+              rubro: finalRubro,
               emite_factura: state.emiteFactura,
             },
             targetRol,
@@ -109,9 +118,9 @@ export function PerfilPage() {
           nombre: state.nombre,
           telefono: state.telefono,
           regiones: state.regiones,
-          razon_social: state.razonSocial,
-          rut: state.rut,
-          rubro: state.rubro,
+          razon_social: state.razonSocial.trim(),
+          rut: finalRut,
+          rubro: finalRubro,
           emite_factura: state.emiteFactura,
         },
         targetRol,
@@ -126,9 +135,9 @@ export function PerfilPage() {
     <div
       className="px"
       style={{
-        paddingTop: 16,
-        paddingBottom: 24,
-        maxWidth: 540,
+        paddingTop: 20,
+        paddingBottom: 36,
+        maxWidth: 580,
         margin: '0 auto',
         width: '100%',
         minHeight: '100vh',
@@ -137,166 +146,169 @@ export function PerfilPage() {
         justifyContent: 'center',
       }}
     >
-      {/* Barra superior con Paso y ThemeTogglePill */}
-      <div className="between" style={{ marginBottom: 6, gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          <Star4Point size={13} color="var(--navy)" />
-          <span className="eyebrow" style={{ margin: 0 }}>
-            Paso 3 de 3 · {esProveedor ? 'Tu operación' : 'Tu empresa'}
+      {/* Barra superior */}
+      <div className="between" style={{ marginBottom: 10, gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Star4Point size={15} color="var(--navy)" />
+          <span className="eyebrow" style={{ margin: 0, fontSize: 13 }}>
+            Paso 3 de 3 · Datos de tu negocio
           </span>
         </div>
         <ThemeTogglePill />
       </div>
 
-      {/* Barra de progreso de 3 pasos (todos completos con resplandor) */}
-      <div className="steps" style={{ margin: '4px 0 14px' }}>
-        <span className="on" style={{ boxShadow: '0 0 10px var(--navy)' }} />
-        <span className="on" style={{ boxShadow: '0 0 10px var(--navy)' }} />
-        <span className="on" style={{ boxShadow: '0 0 10px var(--navy)' }} />
+      {/* Barra de progreso */}
+      <div className="steps" style={{ margin: '6px 0 18px', height: 8 }}>
+        <span className="on" />
+        <span className="on" />
+        <span className="on" />
       </div>
 
-      {/* Badge de modo activo */}
-      <div style={{ marginBottom: 10 }}>
-        <span className="pill pill-glow">
-          <Icon name={esProveedor ? 'package' : 'building'} size={13} strokeWidth={2} />
-          {agregando
-            ? `Agregando modo ${esProveedor ? 'Proveedor' : 'Negocio'}`
-            : esProveedor
-              ? 'Perfil Proveedor'
-              : 'Perfil Negocio'}
-        </span>
+      {/* Título grande y claro */}
+      <div style={{ marginBottom: 20 }}>
+        <h1 className="h2" style={{ margin: '0 0 6px', fontSize: 26, lineHeight: 1.25 }}>
+          Datos de tu empresa o negocio
+        </h1>
+        <p style={{ margin: 0, fontSize: 16, color: 'var(--slate)', lineHeight: 1.45 }}>
+          Completa el nombre de tu negocio para empezar a publicar cargas de inmediato:
+        </p>
       </div>
 
-      {/* Título y subtítulo */}
-      <div style={{ marginBottom: 14 }}>
-        <div className="h2" style={{ margin: '0 0 4px', fontSize: 22 }}>
-          {esProveedor ? 'Cuéntanos qué distribuyes' : 'Cuéntanos de tu negocio'}
-        </div>
-        <div className="sub" style={{ margin: 0, fontSize: 13 }}>
-          {esProveedor
-            ? 'Definimos tus rutas y requisitos para calzar camiones ideales.'
-            : 'Esto le da confianza al transportista para tomar tu carga con rapidez.'}
-        </div>
-      </div>
-
-      {/* Formulario con estética translúcida */}
-      <div className="field" style={{ marginBottom: 12 }}>
-        <label>Razón social de la empresa</label>
+      {/* 1. Nombre del Negocio */}
+      <div className="field" style={{ marginBottom: 18 }}>
+        <label style={{ fontSize: 15, fontWeight: 800, marginBottom: 6 }}>
+          1. Nombre de tu negocio o empresa
+        </label>
         <input
           value={state.razonSocial}
           onChange={(e) => update({ razonSocial: e.target.value })}
-          placeholder="Ej. Distribuidora Central SpA"
+          placeholder="Ej. Agrícola San Pedro / Comercial Muñoz"
           style={{
-            background: 'var(--card-glass-bg)',
-            borderColor: 'var(--card-glass-border)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
+            fontSize: 17,
+            padding: '14px 16px',
+            borderRadius: 14,
+            background: 'var(--surface)',
+            border: '2px solid var(--line)',
           }}
         />
       </div>
 
-      <div className="field" style={{ marginBottom: 12 }}>
-        <label>RUT de la empresa</label>
+      {/* 2. RUT */}
+      <div className="field" style={{ marginBottom: 18 }}>
+        <label style={{ fontSize: 15, fontWeight: 800, marginBottom: 6 }}>
+          2. RUT de la empresa o personal (opcional)
+        </label>
         <input
           value={state.rut}
           onChange={(e) => update({ rut: formatearRut(e.target.value) })}
-          placeholder="76.123.456-K"
+          placeholder="Ej. 76.123.456-K"
           maxLength={12}
           style={{
-            background: 'var(--card-glass-bg)',
-            borderColor: state.rut.trim().length > 0 && !rutValido ? 'var(--danger)' : 'var(--card-glass-border)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
+            fontSize: 17,
+            padding: '14px 16px',
+            borderRadius: 14,
+            background: 'var(--surface)',
+            border: '2px solid var(--line)',
           }}
         />
-        {state.rut.trim().length > 0 && !rutValido && (
-          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4 }}>
-            RUT inválido. Revisa el número y el dígito verificador.
-          </div>
-        )}
-        {rutValido && (
-          <div
-            style={{
-              fontSize: 11.5,
-              color: 'var(--green)',
-              marginTop: 4,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 5,
-              fontWeight: 600,
-            }}
-          >
-            <Star4Point size={10} color="var(--green)" />
-            <Icon name="check" size={12} strokeWidth={2.8} /> RUT válido y verificado para facturación
-          </div>
-        )}
       </div>
 
-      <div className="field" style={{ marginBottom: 14 }}>
-        <label>{esProveedor ? 'Tipo de producto que distribuyes' : 'Rubro de la empresa'}</label>
+      {/* 3. Tipo de carga con botones grandes para tocar sin escribir */}
+      <div className="field" style={{ marginBottom: 24 }}>
+        <label style={{ fontSize: 15, fontWeight: 800, marginBottom: 8 }}>
+          3. ¿Qué tipo de carga mueves principalmente? (Toca una opción)
+        </label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+          {RUBROS_RAPIDOS.map((item) => {
+            const active = state.rubro === item
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={() => update({ rubro: item })}
+                style={{
+                  padding: '13px 16px',
+                  borderRadius: 14,
+                  border: `2px solid ${active ? 'var(--navy)' : 'var(--line)'}`,
+                  background: active ? 'var(--navy)' : 'var(--surface)',
+                  color: active ? '#FFFFFF' : 'var(--ink)',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  textAlign: 'left',
+                }}
+              >
+                <span>{item}</span>
+                <span>{active ? '✓ Elegido' : 'Tocar'}</span>
+              </button>
+            )
+          })}
+        </div>
         <input
           value={state.rubro}
           onChange={(e) => update({ rubro: e.target.value })}
-          placeholder={esProveedor ? 'Ej. Alimentos refrigerados, frutas' : 'Ej. Construcción, ferretería, retail'}
+          placeholder="O escribe aquí otro rubro..."
           style={{
-            background: 'var(--card-glass-bg)',
-            borderColor: 'var(--card-glass-border)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
+            fontSize: 16,
+            padding: '13px 16px',
+            borderRadius: 14,
+            background: 'var(--surface)',
+            border: '2px solid var(--line)',
           }}
         />
       </div>
 
-      {!esProveedor && (
-        <div
-          className="glow-card between"
-          style={{
-            padding: '12px 16px',
-            marginBottom: 16,
-            borderRadius: 14,
-            background: 'var(--card-glass-bg)',
-            border: '1px solid var(--card-glass-border)',
-          }}
-        >
-          <div className="row" style={{ gap: 10 }}>
-            <span style={{ color: 'var(--navy)' }}>
-              <Icon name="doc" size={18} strokeWidth={1.8} />
-            </span>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>¿Emites factura electrónica?</div>
-              <div style={{ fontSize: 11, color: 'var(--slate)' }}>Permite pagos con IVA y respaldo SII</div>
-            </div>
-          </div>
-          <div
-            className={`toggle ${state.emiteFactura ? 'on' : ''}`}
-            onClick={() => update({ emiteFactura: !state.emiteFactura })}
+      {error && <p style={{ color: 'var(--danger)', fontSize: 15, marginBottom: 14 }}>{error}</p>}
+
+      {/* Botones inferiores */}
+      <div style={{ display: 'flex', gap: 12 }}>
+        {!agregando && (
+          <button
+            type="button"
+            onClick={() => navigate('/onboarding/regiones')}
+            style={{
+              padding: '16px 20px',
+              borderRadius: 18,
+              border: '2px solid var(--line)',
+              background: 'var(--surface)',
+              color: 'var(--ink)',
+              fontSize: 16,
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
           >
-            <div className="knob" />
-          </div>
-        </div>
-      )}
+            <Icon name="arrowL" size={18} strokeWidth={2.5} />
+            <span>Volver</span>
+          </button>
+        )}
 
-      {error && <p style={{ color: 'var(--danger)', fontSize: 12.5, marginBottom: 12 }}>{error}</p>}
-
-      <button
-        className="btn btn-primary"
-        style={{
-          padding: '13px 0',
-          fontSize: 15,
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          boxShadow: canSubmit && !saving ? '0 8px 24px -4px var(--navy)' : 'none',
-          transition: 'all 0.2s ease',
-        }}
-        disabled={!canSubmit || saving}
-        onClick={handleSubmit}
-      >
-        <span>{saving ? 'Guardando perfil…' : 'Finalizar registro'}</span>
-        {!saving && <Icon name="arrowR" size={16} strokeWidth={2.4} />}
-      </button>
+        <button
+          className="btn btn-primary"
+          style={{
+            flex: 1,
+            padding: '16px 24px',
+            fontSize: 17,
+            fontWeight: 800,
+            borderRadius: 18,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            opacity: canSubmit && !saving ? 1 : 0.5,
+            cursor: canSubmit && !saving ? 'pointer' : 'not-allowed',
+          }}
+          disabled={!canSubmit || saving}
+          onClick={handleSubmit}
+        >
+          <span>{saving ? 'Entrando a NORTIA…' : '✓ Terminar y Entrar'}</span>
+        </button>
+      </div>
     </div>
   )
 }
