@@ -1,4 +1,5 @@
 import { PLANES_SEGURO, type PolizaSeguro } from '../lib/insuranceService'
+import { NortiaLogo } from './NortiaLogo'
 
 interface PolizaSeguroModalProps {
   isOpen: boolean
@@ -20,8 +21,8 @@ export function PolizaSeguroModal({
       <div className="apple-modal-sheet" style={{ maxWidth: 440 }}>
         <div className="between" style={{ marginBottom: 12 }}>
           <div>
-            <div className="eyebrow" style={{ color: '#265370', margin: 0 }}>Certificado Oficial de Cobertura</div>
-            <div className="h2" style={{ fontSize: 20, marginTop: 2 }}>Póliza NORTIA Seguros</div>
+            <NortiaLogo variant="logotipo" size={28} />
+            <div className="eyebrow" style={{ color: '#265370', margin: '4px 0 0' }}>Certificado Oficial de Cobertura</div>
           </div>
           <button
             type="button"

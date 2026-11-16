@@ -1,3 +1,5 @@
+import { NortiaLogo } from './NortiaLogo'
+
 interface PasePorteriaModalProps {
   isOpen: boolean
   viajeId: string
@@ -68,26 +70,10 @@ export function PasePorteriaModal({
         >
           {/* Encabezado de la Credencial */}
           <div className="between" style={{ borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: 12, marginBottom: 14 }}>
-            <div className="row" style={{ gap: 8 }}>
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: '#FFFFFF',
-                  color: 'var(--navy)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 900,
-                  fontSize: 15,
-                }}
-              >
-                N
-              </div>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 13.5, letterSpacing: 0.5 }}>PASE AUTORIZADO</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>NORTIA Red Logística Chile</div>
+            <div>
+              <NortiaLogo variant="logotipo" size={30} lightText={true} />
+              <div style={{ fontWeight: 800, fontSize: 11.5, letterSpacing: 0.5, marginTop: 4, color: 'rgba(255,255,255,0.85)' }}>
+                PASE DE PORTERÍA AUTORIZADO
               </div>
             </div>
 

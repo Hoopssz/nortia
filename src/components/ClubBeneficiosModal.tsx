@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { NortiaLogo } from './NortiaLogo'
 import {
   obtenerBeneficios,
   type BeneficioClub,
@@ -36,15 +37,10 @@ export function ClubBeneficiosModal({
       <div className="apple-modal-sheet" style={{ maxWidth: 480, padding: '22px' }}>
         {/* Header */}
         <div className="between" style={{ marginBottom: 12 }}>
-          <div className="row" style={{ gap: 8 }}>
-            <span style={{ fontSize: 24 }}>🎁</span>
-            <div>
-              <div className="eyebrow" style={{ color: 'var(--navy)', margin: 0 }}>
-                Club NORTIA Pro
-              </div>
-              <div className="h2" style={{ fontSize: 18, margin: 0 }}>
-                Beneficios en Carretera
-              </div>
+          <div>
+            <NortiaLogo variant="logotipo" size={28} />
+            <div className="h2" style={{ fontSize: 18, margin: '4px 0 0' }}>
+              Beneficios en Carretera
             </div>
           </div>
 

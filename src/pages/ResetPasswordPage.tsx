@@ -95,8 +95,8 @@ export function ResetPasswordPage() {
           padding: '36px 32px',
         }}
       >
-        <div style={{ textAlign: 'center', marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-          <NortiaLogo variant="isotipo" size={52} />
+        <div style={{ textAlign: 'center', marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <NortiaLogo variant="logotipo" size={46} lightText={true} />
 
           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 24, color: '#FFFFFF' }}>
             {done ? 'Contraseña Actualizada' : 'Restablecer Contraseña'}

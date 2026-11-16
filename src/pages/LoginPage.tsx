@@ -316,10 +316,9 @@ export function LoginPage() {
           padding: '36px 32px',
         }}
       >
-        {/* Logo Oficial NORTIA */}
-        <div style={{ textAlign: 'center', marginBottom: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-          <NortiaLogo variant="isotipo" size={52} />
-          <NortiaLogo variant="logotipo" size={40} lightText={true} />
+        {/* Logotipo Oficial NORTIA (Solo letras de marca) */}
+        <div style={{ textAlign: 'center', marginBottom: 26, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <NortiaLogo variant="logotipo" size={50} lightText={true} />
         </div>
 
         {/* Toggle de Pestañas (Crear Cuenta vs Iniciar Sesión) */}

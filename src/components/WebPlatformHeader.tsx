@@ -84,10 +84,9 @@ export function WebPlatformHeader({ activeTab = '' }: { activeTab?: string }) {
             style={{ gap: 10, cursor: 'pointer', userSelect: 'none', alignItems: 'center' }}
             onClick={() => navigate(isCamionero ? '/camionero' : isProveedor ? '/proveedor' : '/negocio')}
           >
-            <NortiaLogo variant="isotipo" size={38} />
             <div>
-              <NortiaLogo variant="logotipo" size={34} />
-              <div style={{ fontSize: 9.5, color: 'var(--navy)', fontWeight: 800, letterSpacing: 0.8, marginTop: 1 }}>
+              <NortiaLogo variant="logotipo" size={38} />
+              <div style={{ fontSize: 9.5, color: 'var(--navy)', fontWeight: 800, letterSpacing: 0.8, marginTop: 2 }}>
                 {isCamionero ? 'PORTAL TRANSPORTISTAS' : isProveedor ? 'PORTAL PROVEEDORES' : 'PORTAL EMPRESAS'}
               </div>
             </div>

@@ -18,9 +18,8 @@ export function SplashPage() {
         padding: '24px',
       }}
     >
-      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-        <NortiaLogo variant="isotipo" size={72} />
-        <NortiaLogo variant="logotipo" size={54} />
+      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+        <NortiaLogo variant="logotipo" size={62} />
         <div
           style={{
             marginTop: 4,

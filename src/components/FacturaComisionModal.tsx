@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { NortiaLogo } from './NortiaLogo'
 import {
   obtenerFacturaComision,
   generarFacturaComision,
@@ -61,8 +62,11 @@ export function FacturaComisionModal({
       <div className="apple-modal-sheet" style={{ maxWidth: 480, padding: '22px' }}>
         {/* Header */}
         <div className="between" style={{ marginBottom: 14 }}>
-          <div className="eyebrow" style={{ color: 'var(--navy)', margin: 0 }}>
-            Tributación SII · DTE 33
+          <div>
+            <NortiaLogo variant="logotipo" size={28} />
+            <div className="eyebrow" style={{ color: 'var(--navy)', margin: '4px 0 0' }}>
+              Tributación SII · DTE 33
+            </div>
           </div>
           <button
             type="button"
