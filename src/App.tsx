@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SplashScreen } from '@capacitor/splash-screen'
+import { isStandaloneApp } from './lib/platformMode'
 import { RequireAuth } from './routes/RequireAuth'
 import { RoleGate } from './routes/RoleGate'
 import { HomeRedirect } from './routes/HomeRedirect'
@@ -54,6 +55,7 @@ function RouteFallback() {
 
 function App() {
   const isNative = Capacitor.isNativePlatform()
+  const isApp = isStandaloneApp()
 
   useEffect(() => {
     if (isNative) {
@@ -61,7 +63,12 @@ function App() {
       StatusBar.setBackgroundColor({ color: '#070E1B' }).catch(() => {})
       SplashScreen.hide().catch(() => {})
     }
-  }, [isNative])
+    if (isApp) {
+      document.documentElement.setAttribute('data-platform', 'app')
+    } else {
+      document.documentElement.setAttribute('data-platform', 'web')
+    }
+  }, [isNative, isApp])
 
   return (
     <>
@@ -71,7 +78,7 @@ function App() {
           <Route
             path="/"
             element={
-              isNative ? (
+              isApp ? (
                 <RequireAuth>
                   <HomeRedirect />
                 </RequireAuth>

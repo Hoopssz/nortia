@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { NortiaLogo } from './NortiaLogo'
 import { validarRut, formatearRut } from '../lib/validators'
 import { uploadToBucket, sanitizeFileName, getSignedDocumentUrl } from '../lib/uploadFile'
 import { useAuth } from '../contexts/useAuth'
@@ -121,8 +122,8 @@ export function GuiaDespachoModal({
       <div className="apple-modal-sheet" style={{ maxWidth: 460 }}>
         <div className="between" style={{ marginBottom: 12 }}>
           <div>
-            <div className="eyebrow" style={{ color: '#265370', margin: 0 }}>Documentación Tributaria SII</div>
-            <div className="h2" style={{ fontSize: 20, marginTop: 2 }}>Guía de Despacho (DTE 52)</div>
+            <NortiaLogo variant="logotipo" size={26} />
+            <div className="h2" style={{ fontSize: 19, marginTop: 4 }}>Guía de Despacho (DTE 52)</div>
           </div>
           <button
             type="button"

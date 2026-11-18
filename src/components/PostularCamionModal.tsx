@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Icon, Star4Point } from './Icon'
+import { NortiaLogo } from './NortiaLogo'
 import {
   type FleteRegional,
   registrarPostulacionFlete,
@@ -94,30 +95,10 @@ export function PostularCamionModal({
       >
         {/* Cabecera del Modal */}
         <div className="between" style={{ marginBottom: 16, alignItems: 'flex-start' }}>
-          <div className="row" style={{ gap: 10 }}>
-            <div
-              style={{
-                width: 42,
-                height: 42,
-                borderRadius: 12,
-                background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-700) 100%)',
-                color: '#FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 0 14px -2px rgba(10, 25, 47, 0.4)',
-              }}
-            >
-              <Icon name="truck" size={22} strokeWidth={2} />
-            </div>
-            <div>
-              <div className="meta" style={{ display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
-                <span>Postulación Táctica Directa</span>
-                <Star4Point size={10} color="var(--navy)" />
-              </div>
-              <div className="h2" style={{ fontSize: 19, margin: '2px 0 0', fontWeight: 800, letterSpacing: -0.3 }}>
-                Postular con tu Camión
-              </div>
+          <div>
+            <NortiaLogo variant="logotipo" size={26} />
+            <div className="h2" style={{ fontSize: 19, margin: '4px 0 0', fontWeight: 800, letterSpacing: -0.3 }}>
+              Postular con tu Camión
             </div>
           </div>
 

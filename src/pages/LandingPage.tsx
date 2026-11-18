@@ -61,6 +61,7 @@ export function LandingPage() {
 
   // FAQ Acordeón
   const [faqAbierto, setFaqAbierto] = useState<number | null>(null)
+  const [showAppModal, setShowAppModal] = useState(false)
 
   // Cálculo en vivo de la cotización
   const cotizacion = useMemo(() => {
@@ -154,7 +155,7 @@ export function LandingPage() {
             <a href="#transportistas" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Transportistas</a>
             <a href="#faq" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Preguntas</a>
             <span
-              onClick={() => navigate('/simulator')}
+              onClick={() => setShowAppModal(true)}
               style={{
                 color: '#38BDF8',
                 cursor: 'pointer',
@@ -163,14 +164,14 @@ export function LandingPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 5,
-                padding: '5px 12px',
+                padding: '6px 14px',
                 borderRadius: 999,
                 background: 'rgba(56, 189, 248, 0.12)',
                 border: '1px solid rgba(56, 189, 248, 0.3)',
                 boxShadow: '0 0 14px rgba(56, 189, 248, 0.2)',
               }}
             >
-              📱 Simulador App Móvil
+              📲 Descargar App (iOS & Android)
             </span>
           </nav>
 
@@ -193,7 +194,7 @@ export function LandingPage() {
                 }}
                 onClick={() => navigate('/app')}
               >
-                🚀 Abrir mi App ({perfil?.rol === 'camionero' ? 'Camionero' : 'Empresa'}) →
+                Abrir Portal ({perfil?.rol === 'camionero' ? 'Camionero' : 'Empresa'}) →
               </button>
             ) : (
               <>
@@ -202,17 +203,17 @@ export function LandingPage() {
                   className="btn btn-ghost"
                   style={{
                     width: 'auto',
-                    padding: '9px 16px',
+                    padding: '9px 14px',
                     fontSize: 12.5,
                     fontWeight: 700,
-                    color: '#FFFFFF',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: '#38BDF8',
+                    border: '1px solid rgba(56, 189, 248, 0.35)',
+                    background: 'rgba(56, 189, 248, 0.08)',
                     borderRadius: 18,
                   }}
-                  onClick={() => navigate('/login')}
+                  onClick={() => setShowAppModal(true)}
                 >
-                  Iniciar Sesión
+                  📲 App Móvil
                 </button>
                 <button
                   type="button"
@@ -230,7 +231,7 @@ export function LandingPage() {
                   }}
                   onClick={() => navigate('/login')}
                 >
-                  📲 Entrar a la App
+                  Entrar a Plataforma Web →
                 </button>
               </>
             )}
@@ -1049,11 +1050,148 @@ export function LandingPage() {
             <div className="row" style={{ gap: 16 }}>
               <span style={{ cursor: 'pointer' }} onClick={() => navigate('/terminos')}>Términos</span>
               <span style={{ cursor: 'pointer' }} onClick={() => navigate('/privacidad')}>Privacidad</span>
-              <span style={{ cursor: 'pointer' }} onClick={() => navigate('/login')}>Acceso a la App</span>
+              <span style={{ cursor: 'pointer' }} onClick={() => setShowAppModal(true)}>Descargar App iOS / Android</span>
+              <span style={{ cursor: 'pointer' }} onClick={() => navigate('/login')}>Plataforma Web</span>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Overlay Oficial de Descarga de la App Móvil NORTIA (iOS & Android) */}
+      {showAppModal && (
+        <div className="apple-modal-overlay" onClick={() => setShowAppModal(false)}>
+          <div
+            className="apple-modal-sheet"
+            style={{
+              background: '#FFFFFF',
+              color: '#0F172A',
+              maxWidth: 500,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="between" style={{ marginBottom: 16 }}>
+              <div>
+                <NortiaLogo variant="logotipo" size={32} />
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#0F172A', marginTop: 4 }}>
+                  Descargar App Móvil Oficial
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAppModal(false)}
+                style={{
+                  background: '#F1F5F9',
+                  border: 'none',
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  fontSize: 18,
+                  color: '#475569',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p style={{ fontSize: 14.5, color: '#475569', lineHeight: 1.5, margin: '0 0 18px' }}>
+              La <b>App Móvil de NORTIA</b> es independiente de la página web y está optimizada para uso en ruta (iOS y Android):
+            </p>
+
+            {/* Tarjeta Android APK */}
+            <div
+              style={{
+                padding: '16px',
+                borderRadius: 18,
+                border: '2px solid #265370',
+                background: '#F8FAFC',
+                marginBottom: 14,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A' }}>
+                    🤖 Android (APK Oficial Directo)
+                  </div>
+                  <div style={{ fontSize: 13, color: '#475569', marginTop: 2 }}>
+                    Instalador nativo <code>cl.nortia.app</code> para teléfonos Android
+                  </div>
+                </div>
+                <span
+                  style={{
+                    background: '#10B981',
+                    color: '#FFFFFF',
+                    fontSize: 11,
+                    fontWeight: 800,
+                    padding: '4px 10px',
+                    borderRadius: 999,
+                  }}
+                >
+                  v1.0 Oficial
+                </span>
+              </div>
+              <a
+                href={`${import.meta.env.BASE_URL}NORTIA-Chile.apk`}
+                download="NORTIA-Chile.apk"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '13px 16px',
+                  borderRadius: 14,
+                  background: '#265370',
+                  color: '#FFFFFF',
+                  fontSize: 15,
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                }}
+              >
+                <span>⬇️ Descargar NORTIA-Chile.apk (Android)</span>
+              </a>
+            </div>
+
+            {/* Tarjeta iPhone / iOS */}
+            <div
+              style={{
+                padding: '16px',
+                borderRadius: 18,
+                border: '1.5px solid #CBD5E1',
+                background: '#F8FAFC',
+                marginBottom: 16,
+              }}
+            >
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
+                🍎 iPhone / iPad (iOS Directo)
+              </div>
+              <div style={{ fontSize: 13.5, color: '#334155', lineHeight: 1.5, marginBottom: 12 }}>
+                1. Abre la App en tu iPhone tocando el botón de abajo.<br />
+                2. En Safari toca <b>Compartir (⬆️)</b> → <b>"Agregar a pantalla de inicio"</b>.
+              </div>
+              <a
+                href={`${import.meta.env.BASE_URL}?app=1`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '13px 16px',
+                  borderRadius: 14,
+                  background: '#0F172A',
+                  color: '#FFFFFF',
+                  fontSize: 15,
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                }}
+              >
+                <span>📱 Abrir Versión App Móvil (iOS / Android) →</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

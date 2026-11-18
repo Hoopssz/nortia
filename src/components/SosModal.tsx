@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { NortiaLogo } from './NortiaLogo'
 import {
   TIPOS_INCIDENCIA_LABEL,
   guardarIncidencia,
@@ -91,14 +92,9 @@ export function SosModal({
       <div className="apple-modal-sheet" style={{ maxWidth: 450 }}>
         {/* Header SOS */}
         <div className="between" style={{ marginBottom: 14 }}>
-          <div className="row" style={{ gap: 8 }}>
-            <span style={{ fontSize: 24 }}>🚨</span>
-            <div>
-              <div className="eyebrow" style={{ color: '#DC2626', margin: 0, fontWeight: 800 }}>
-                ASISTENCIA EN RUTA
-              </div>
-              <div className="h2" style={{ fontSize: 19, margin: 0 }}>Reportar Imprevisto / SOS</div>
-            </div>
+          <div>
+            <NortiaLogo variant="logotipo" size={26} />
+            <div className="h2" style={{ fontSize: 19, margin: '4px 0 0', color: '#DC2626' }}>Reportar Imprevisto / SOS</div>
           </div>
           <button
             type="button"

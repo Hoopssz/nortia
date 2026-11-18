@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Icon } from './Icon'
+import { NortiaLogo } from './NortiaLogo'
 import {
   type MetodoPago,
   detectarMarcaTarjeta,
@@ -133,8 +134,8 @@ export function PaymentModal({
           <>
             <div className="between" style={{ marginBottom: 14 }}>
               <div>
-                <div className="eyebrow" style={{ color: 'var(--navy)', margin: 0 }}>Mercado Pago & Webpay</div>
-                <div className="h2" style={{ fontSize: 20, marginTop: 2 }}>Pagar flete</div>
+                <NortiaLogo variant="logotipo" size={26} />
+                <div className="h2" style={{ fontSize: 19, marginTop: 4 }}>Pagar flete</div>
               </div>
               <button
                 type="button"

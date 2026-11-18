@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { NortiaLogo } from './NortiaLogo'
 import {
   obtenerRegistroEstadia,
   iniciarRegistroEstadia,
@@ -70,10 +71,8 @@ export function RelojEstadiaModal({
         {/* Header */}
         <div className="between" style={{ marginBottom: 12 }}>
           <div>
-            <div className="eyebrow" style={{ color: 'var(--navy)', margin: 0 }}>
-              Control en Andén
-            </div>
-            <div className="h2" style={{ fontSize: 18, margin: 0 }}>
+            <NortiaLogo variant="logotipo" size={26} />
+            <div className="h2" style={{ fontSize: 18, margin: '4px 0 0' }}>
               Reloj de Estadía en Bodega
             </div>
           </div>

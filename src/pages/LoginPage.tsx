@@ -5,6 +5,7 @@ import { getErrorMessage } from '../lib/errors'
 import { Icon } from '../components/Icon'
 import { NortiaLogo } from '../components/NortiaLogo'
 import { useAuth } from '../contexts/useAuth'
+import { isStandaloneApp } from '../lib/platformMode'
 
 // Componente de Estrella de 4 Puntas (✦)
 function Star4Point({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) {
@@ -280,25 +281,28 @@ export function LoginPage() {
         />
       </div>
 
-      {/* Enlace para volver a la Landing */}
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 10,
-          marginBottom: 20,
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          fontSize: 12.5,
-          color: '#94A3B8',
-          transition: 'color 0.2s',
-        }}
-        onClick={() => navigate('/landing')}
-      >
-        <Star4Point size={12} color="#38BDF8" />
-        <span>Volver a la página principal (nortia.cl)</span>
-      </div>
+      {/* Enlace para volver a la Landing (Solo visible en Web, oculto en la App Móvil) */}
+      {!isStandaloneApp() && (
+        <div
+          className="hide-on-mobile"
+          style={{
+            position: 'relative',
+            zIndex: 10,
+            marginBottom: 20,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 12.5,
+            color: '#94A3B8',
+            transition: 'color 0.2s',
+          }}
+          onClick={() => navigate('/landing')}
+        >
+          <Star4Point size={12} color="#38BDF8" />
+          <span>Volver a la página principal (nortia.cl)</span>
+        </div>
+      )}
 
       {/* Tarjeta Glassmorphic de Autenticación */}
       <div
@@ -590,50 +594,41 @@ export function LoginPage() {
         Plataforma Protegida por Encriptación SSL · NORTIA SpA Chile
       </div>
 
-      {/* Modal Oficial de Selección de Cuenta de Google */}
+      {/* Modal Oficial de Selección de Cuenta de Google (Dual: Modal en Web / Bottom Sheet en App) */}
       {showGoogleModal && (
         <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 9999,
-            background: 'rgba(2, 6, 23, 0.78)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}
+          className="apple-modal-overlay"
           onClick={() => setShowGoogleModal(false)}
         >
           <div
+            className="apple-modal-sheet"
             style={{
               background: '#FFFFFF',
               color: '#1F2937',
-              maxWidth: 400,
-              width: '100%',
-              borderRadius: 24,
-              padding: '28px 26px',
-              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.45)',
+              maxWidth: 420,
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <GoogleIcon size={24} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>Iniciar sesión con Google</span>
+                <GoogleIcon size={22} />
+                <NortiaLogo variant="logotipo" size={26} />
               </div>
               <button
                 type="button"
                 onClick={() => setShowGoogleModal(false)}
                 style={{
-                  background: 'transparent',
+                  background: '#F3F4F6',
                   border: 'none',
-                  fontSize: 18,
-                  color: '#9CA3AF',
+                  width: 34,
+                  height: 34,
+                  borderRadius: '50%',
+                  fontSize: 16,
+                  color: '#4B5563',
                   cursor: 'pointer',
-                  padding: 4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 ✕

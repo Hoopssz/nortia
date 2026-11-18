@@ -3,6 +3,7 @@ import { validarRut, formatearRut } from '../lib/validators'
 import { uploadToBucket, sanitizeFileName, getSignedDocumentUrl } from '../lib/uploadFile'
 import { useAuth } from '../contexts/useAuth'
 import { Icon } from './Icon'
+import { NortiaLogo } from './NortiaLogo'
 import { guardarComprobanteEntrega, type ComprobanteEntrega } from '../lib/podService'
 
 interface ProofOfDeliveryModalProps {
@@ -195,8 +196,8 @@ export function ProofOfDeliveryModal({
       <div className="apple-modal-sheet" style={{ maxWidth: 440 }}>
         <div className="between" style={{ marginBottom: 12 }}>
           <div>
-            <div className="eyebrow" style={{ color: '#059669', margin: 0 }}>Comprobante de Entrega (POD)</div>
-            <div className="h2" style={{ fontSize: 20, marginTop: 2 }}>Recepción de Carga</div>
+            <NortiaLogo variant="logotipo" size={26} />
+            <div className="h2" style={{ fontSize: 19, marginTop: 4 }}>Recepción de Carga (POD)</div>
           </div>
           <button
             type="button"
