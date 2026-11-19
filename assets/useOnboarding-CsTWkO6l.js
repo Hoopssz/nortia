@@ -1,0 +1,1 @@
+import{f as e,m as t}from"./jsx-runtime-CzjXeanU.js";import{i as n}from"./index-DRlcCc22.js";var r=t(e(),1);function i(){let e=(0,r.useContext)(n);if(!e)throw Error(`useOnboarding debe usarse dentro de OnboardingLayout`);return e}export{i as t};
