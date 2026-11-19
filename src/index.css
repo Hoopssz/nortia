@@ -659,6 +659,76 @@ h6,
   }
 }
 
+/* Cuando se abre el link de LA APP (?app=1) desde un computador: vista App Móvil 430px real */
+html[data-platform="app"] {
+  background: #050B14;
+}
+
+@media (min-width: 500px) {
+  html[data-platform="app"] body {
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.75);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow-x: hidden;
+  }
+}
+
+html[data-platform="app"] .desktop-nav,
+html[data-platform="app"] .hide-on-mobile {
+  display: none !important;
+}
+
+html[data-platform="app"] .mobile-bottom-nav {
+  display: flex !important;
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+html[data-platform="app"] .dashboard-split-grid,
+html[data-platform="app"] .two-col-grid,
+html[data-platform="app"] .cards-auto-grid {
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
+
+html[data-platform="app"] .stats-bar-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+}
+
+html[data-platform="app"] .apple-modal-overlay {
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+html[data-platform="app"] .apple-modal-sheet {
+  width: 100% !important;
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  border-radius: 28px 28px 0 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  padding: 14px 20px calc(28px + env(safe-area-inset-bottom, 18px)) !important;
+  max-height: 88dvh !important;
+  animation: appleSheetSlideUp 0.28s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+
+html[data-platform="app"] .apple-modal-sheet::before {
+  content: '';
+  display: block;
+  width: 42px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.45);
+  margin: 0 auto 14px;
+}
+
 /* =========================================================
    UTILIDADES GLOWY TRANSLÚCIDAS & ACCESOS RÁPIDOS
    ========================================================= */

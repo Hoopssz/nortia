@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 
 /**
- * Detecta si NORTIA se está ejecutando como LA APP MÓVIL (iOS / Android nativo o App instalada)
+ * Detecta si NORTIA se está ejecutando como LA APP MÓVIL (iOS / Android nativo o ?app=1)
  * versus LA PÁGINA WEB de escritorio.
  */
 export function isStandaloneApp(): boolean {
@@ -9,6 +9,13 @@ export function isStandaloneApp(): boolean {
   if (typeof window === 'undefined') return false
 
   const params = new URLSearchParams(window.location.search)
+  if (params.get('web') === '1' || window.location.pathname.endsWith('/landing')) {
+    try {
+      sessionStorage.removeItem('nortia_app_mode')
+    } catch {}
+    return false
+  }
+
   if (params.get('app') === '1' || params.get('mode') === 'app') {
     try {
       sessionStorage.setItem('nortia_app_mode', '1')
@@ -30,5 +37,5 @@ export function isStandaloneApp(): boolean {
 
 export function isMobileViewport(): boolean {
   if (typeof window === 'undefined') return false
-  return window.innerWidth < 768
+  return window.innerWidth < 768 || isStandaloneApp()
 }

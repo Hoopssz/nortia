@@ -1131,7 +1131,7 @@ export function LandingPage() {
                 </span>
               </div>
               <a
-                href={`${import.meta.env.BASE_URL}NORTIA-Chile.apk`}
+                href="https://github.com/Hoopssz/nortia/releases/download/v1.0.0/NORTIA-Chile.apk"
                 download="NORTIA-Chile.apk"
                 style={{
                   display: 'flex',
